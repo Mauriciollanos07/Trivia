@@ -166,3 +166,39 @@ cython_debug/
 
 # migrations
 backend/migrations/
+
+# Expo/React Native
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
+mobile/npm-debug.*
+mobile/*.jks
+mobile/*.p8
+mobile/*.p12
+mobile/*.key
+mobile/*.mobileprovision
+mobile/*.orig.*
+mobile/web-build/
+mobile/.DS_Store
+mobile/.env.local
+mobile/.env.development.local
+mobile/.env.test.local
+mobile/.env.production.local
+
+# Expo specific
+expo-env.d.ts
+.kotlin/
+.metro-health-check*
+*.pem
+*.tsbuildinfo
+app-example
+
+
+
+# npm
+mobile/npm-debug.log*
+mobile/yarn-debug.log*
+mobile/yarn-error.log*
+
+# notes files
+mobile/npmNotes.txt
