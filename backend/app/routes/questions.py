@@ -3,6 +3,11 @@ from app.routes import questions_bp
 from app.models.question import Question
 import random
 
+# Import schema here instead of globally
+from app.schemas.question import QuestionSchema
+question_schema = QuestionSchema()
+questions_schema = QuestionSchema(many=True)
+
 @questions_bp.route('', methods=['GET'])
 def get_questions():
     category = request.args.get('category')
@@ -23,14 +28,5 @@ def get_questions():
         questions = random.sample(questions, amount)
     
     return jsonify({
-        'questions': [
-            {
-                'id': q.id,
-                'text': q.text,
-                'category': q.category,
-                'difficulty': q.difficulty,
-                'correct_answer': q.correct_answer,
-                'incorrect_answers': q.incorrect_answers.split('|')
-            } for q in questions
-        ]
+        'questions': questions_schema.dump(questions)
     }), 200

@@ -18,6 +18,14 @@ def create_app(config_class=Config):
     CORS(app)
     jwt.init_app(app)
     
+    # Import models to ensure they are registered with SQLAlchemy
+    with app.app_context():
+        from app.models import user, score, question
+    
+    # Initialize Marshmallow
+    from app.schemas import init_ma
+    init_ma(app)
+    
     from app.routes import auth_bp, questions_bp, scores_bp
     app.register_blueprint(auth_bp)
     app.register_blueprint(questions_bp)
