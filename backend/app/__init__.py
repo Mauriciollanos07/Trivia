@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_cors import CORS
@@ -30,5 +30,17 @@ def create_app(config_class=Config):
     app.register_blueprint(auth_bp)
     app.register_blueprint(questions_bp)
     app.register_blueprint(scores_bp)
+    
+    # Add a root route to provide API information
+    @app.route('/')
+    def index():
+        return jsonify({
+            "message": "Welcome to the Trivia API",
+            "endpoints": {
+                "auth": "/api/auth",
+                "questions": "/api/questions",
+                "scores": "/api/scores"
+            }
+        })
     
     return app
