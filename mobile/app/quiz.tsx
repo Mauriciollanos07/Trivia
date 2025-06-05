@@ -1,19 +1,17 @@
 import { Stack, useLocalSearchParams } from 'expo-router';
-import QuizScreen from '../src/screens/QuizScreen';
+import QuizScreen from '../screens/QuizScreen';
 
 export default function Quiz() {
   const params = useLocalSearchParams();
+  const category = params.category as string;
+  const difficulty = Number(params.difficulty);
   
   return (
     <>
       <Stack.Screen options={{ title: 'Quiz' }} />
       <QuizScreen 
-        route={{ 
-          params: { 
-            category: params.category as string, 
-            difficulty: Number(params.difficulty) 
-          } 
-        }} 
+        category={category}
+        difficulty={difficulty}
       />
     </>
   );

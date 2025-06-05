@@ -1,21 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
-import { RouteProp } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
+import { useRouter } from 'expo-router';
 import { fetchQuestions, submitScore } from '../services/api';
 import QuestionCard from '../components/QuestionCard';
 
-type RootStackParamList = {
-  Quiz: { category: string; difficulty: number };
-  Results: { score: number; total: number; category: string; difficulty: number };
-};
-
-type QuizScreenRouteProp = RouteProp<RootStackParamList, 'Quiz'>;
-type QuizScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Quiz'>;
-
 interface QuizScreenProps {
-  route: QuizScreenRouteProp;
-  navigation: QuizScreenNavigationProp;
+  category: string;
+  difficulty: number;
 }
 
 interface Question {
@@ -27,8 +18,8 @@ interface Question {
   incorrect_answers: string[];
 }
 
-const QuizScreen = ({ route, navigation }: QuizScreenProps) => {
-  const { category, difficulty } = route.params;
+const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
+  const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
@@ -78,20 +69,26 @@ const QuizScreen = ({ route, navigation }: QuizScreenProps) => {
         questions_correct: score
       });
       
-      navigation.navigate('Results', {
-        score,
-        total: questions.length,
-        category,
-        difficulty
+      router.push({
+        pathname: './results',
+        params: {
+          score,
+          total: questions.length,
+          category,
+          difficulty
+        }
       });
     } catch (error) {
       console.error('Error submitting score:', error);
       // Still navigate to results even if score submission fails
-      navigation.navigate('Results', {
-        score,
-        total: questions.length,
-        category,
-        difficulty
+      router.push({
+        pathname: './results',
+        params: {
+          score,
+          total: questions.length,
+          category,
+          difficulty
+        }
       });
     }
   };

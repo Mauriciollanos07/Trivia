@@ -1,19 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { StackNavigationProp } from '@react-navigation/stack';
-
-type RootStackParamList = {
-  Home: undefined;
-  Quiz: { category: string; difficulty: number };
-  Stats: undefined;
-  Login: undefined;
-};
-
-type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>;
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 
 const HomeScreen = () => {
-  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const router = useRouter();
 
   return (
     <View style={styles.container}>
@@ -22,21 +12,24 @@ const HomeScreen = () => {
       <View style={styles.buttonContainer}>
         <TouchableOpacity 
           style={styles.button}
-          onPress={() => navigation.navigate('Quiz', { category: 'general', difficulty: 1 })}
+          onPress={() => router.push({
+            pathname: './quiz',
+            params: { category: 'general', difficulty: 1 }
+          })}
         >
           <Text style={styles.buttonText}>Start Quiz</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={styles.button}
-          onPress={() => navigation.navigate('Stats')}
+          onPress={() => router.push('./stats')}
         >
           <Text style={styles.buttonText}>View Stats</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={[styles.button, styles.loginButton]}
-          onPress={() => navigation.navigate('Login')}
+          onPress={() => router.push('./login')}
         >
           <Text style={styles.buttonText}>Login</Text>
         </TouchableOpacity>
