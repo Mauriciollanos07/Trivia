@@ -3,24 +3,37 @@ from app import db
 from app.routes import auth_bp
 from app.models.user import User
 from flask_jwt_extended import create_access_token
+from marshmallow import ValidationError
+
+# Import schema here instead of globally
+from app.schemas.user import UserSchema
+user_schema = UserSchema()
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     
-    if User.query.filter_by(username=data['username']).first():
-        return jsonify({'message': 'Username already exists'}), 400
+    try:
+        # Validate and deserialize input
+        user = user_schema.load(data)
         
-    if User.query.filter_by(email=data['email']).first():
-        return jsonify({'message': 'Email already exists'}), 400
+        # Check for existing username/email
+        if User.query.filter_by(username=user.username).first():
+            return jsonify({'message': 'Username already exists'}), 400
+            
+        if User.query.filter_by(email=user.email).first():
+            return jsonify({'message': 'Email already exists'}), 400
+        
+        # Set password (not handled by schema)
+        user.set_password(data['password'])
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        return jsonify({'message': 'User registered successfully'}), 201
     
-    user = User(username=data['username'], email=data['email'])
-    user.set_password(data['password'])
-    
-    db.session.add(user)
-    db.session.commit()
-    
-    return jsonify({'message': 'User registered successfully'}), 201
+    except ValidationError as err:
+        return jsonify(err.messages), 400
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
@@ -35,6 +48,5 @@ def login():
     
     return jsonify({
         'access_token': access_token,
-        'user_id': user.id,
-        'username': user.username
+        'user': user_schema.dump(user)
     }), 200

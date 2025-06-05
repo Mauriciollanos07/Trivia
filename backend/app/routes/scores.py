@@ -3,6 +3,12 @@ from app import db
 from app.routes import scores_bp
 from app.models.score import Score
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from marshmallow import ValidationError
+
+# Import schema here instead of globally
+from app.schemas.score import ScoreSchema
+score_schema = ScoreSchema()
+scores_schema = ScoreSchema(many=True)
 
 @scores_bp.route('', methods=['POST'])
 @jwt_required()
@@ -10,19 +16,23 @@ def add_score():
     user_id = get_jwt_identity()
     data = request.get_json()
     
-    score = Score(
-        user_id=user_id,
-        score=data['score'],
-        category=data.get('category'),
-        difficulty=data.get('difficulty'),
-        questions_answered=data.get('questions_answered', 0),
-        questions_correct=data.get('questions_correct', 0)
-    )
-    
-    db.session.add(score)
-    db.session.commit()
-    
-    return jsonify({'message': 'Score added successfully'}), 201
+    try:
+        # Add user_id to the data
+        data['user_id'] = user_id
+        
+        # Validate and deserialize input
+        score = score_schema.load(data)
+        
+        db.session.add(score)
+        db.session.commit()
+        
+        return jsonify({
+            'message': 'Score added successfully',
+            'score': score_schema.dump(score)
+        }), 201
+        
+    except ValidationError as err:
+        return jsonify(err.messages), 400
 
 @scores_bp.route('', methods=['GET'])
 @jwt_required()
@@ -31,18 +41,13 @@ def get_user_scores():
     
     scores = Score.query.filter_by(user_id=user_id).order_by(Score.date.desc()).all()
     
+    # Add username to each score
+    result = scores_schema.dump(scores)
+    for score_data, score_obj in zip(result, scores):
+        score_data['username'] = score_obj.user.username if score_obj.user else None
+    
     return jsonify({
-        'scores': [
-            {
-                'id': s.id,
-                'score': s.score,
-                'category': s.category,
-                'difficulty': s.difficulty,
-                'questions_answered': s.questions_answered,
-                'questions_correct': s.questions_correct,
-                'date': s.date.isoformat()
-            } for s in scores
-        ]
+        'scores': result
     }), 200
 
 @scores_bp.route('/stats', methods=['GET'])
