@@ -1,8 +1,8 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://10.0.2.2:5000/api'; // Use this for Android emulator
-// const API_URL = 'http://localhost:5000/api'; // Use this for iOS simulator
+const API_URL = 'http://127.0.0.1:5000'; // Use this for Android emulator
+// const API_URL = 'http://localhost:5000'; // Use this for iOS simulator
 
 const api = axios.create({
   baseURL: API_URL,
@@ -63,7 +63,7 @@ export const fetchQuestions = async (
   difficulty?: number, 
   amount: number = 10
 ): Promise<QuestionsResponse> => {
-  const response = await api.get('/questions', {
+  const response = await api.get('/api/questions', {
     params: { category, difficulty, amount },
   });
   return response.data;
@@ -78,7 +78,7 @@ interface ScoreData {
 }
 
 export const submitScore = async (scoreData: ScoreData): Promise<any> => {
-  const response = await api.post('/scores', scoreData);
+  const response = await api.post('/api/scores', scoreData);
   return response.data;
 };
 
@@ -92,7 +92,7 @@ interface UserStats {
 }
 
 export const fetchUserStats = async (): Promise<UserStats> => {
-  const response = await api.get('/scores/stats');
+  const response = await api.get('/api/scores/stats');
   return response.data;
 };
 

@@ -17,7 +17,7 @@ def create_app(config_class=Config):
     
     db.init_app(app)
     migrate.init_app(app, db)
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "*"}})
     jwt.init_app(app)
     
     # Initialize Flask-Login
