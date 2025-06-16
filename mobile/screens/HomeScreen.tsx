@@ -10,6 +10,8 @@ const HomeScreen = () => {
       <Text style={styles.title}>Trivia Challenge</Text>
       
       <View style={styles.buttonContainer}>
+        <Text style={styles.sectionTitle}>Quiz Categories</Text>
+        
         <TouchableOpacity 
           style={styles.button}
           onPress={() => router.push({
@@ -17,7 +19,27 @@ const HomeScreen = () => {
             params: { category: 'general', difficulty: 1 }
           })}
         >
-          <Text style={styles.buttonText}>Start Quiz</Text>
+          <Text style={styles.buttonText}>General Knowledge</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => router.push({
+            pathname: './quiz',
+            params: { category: 'science', difficulty: 1 }
+          })}
+        >
+          <Text style={styles.buttonText}>Science & Nature</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={styles.button}
+          onPress={() => router.push({
+            pathname: './quiz',
+            params: { category: 'history', difficulty: 1 }
+          })}
+        >
+          <Text style={styles.buttonText}>History</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
@@ -49,8 +71,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 40,
+    marginBottom: 30,
     color: '#333',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 15,
+    color: '#555',
+    alignSelf: 'center',
   },
   buttonContainer: {
     width: '100%',
