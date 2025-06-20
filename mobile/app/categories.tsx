@@ -1,39 +1,36 @@
-import React from 'react';
+import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 
-const HomeScreen = () => {
-  const router = useRouter();
+export default function  Categories() {
+    const router = useRouter();
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Trivia Challenge</Text>
-      
+      <Text style={styles.title}>Select Category</Text>
       <View style={styles.buttonContainer}>
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push('./categories')}
+          onPress={() => router.push({
+            pathname: './quiz',
+            params: { category: 'general', difficulty: 1 }
+          })}
         >
-          <Text style={styles.buttonText}>Play</Text>
+          <Text style={styles.buttonText}>General Knowledge</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+        <TouchableOpacity
           style={styles.button}
-          onPress={() => router.push('./stats')}
-        >
-          <Text style={styles.buttonText}>View Stats</Text>
+        onPress={() => router.push({
+            pathname: './quiz',
+            params: { category: 'sports', difficulty: 1 }
+          })}>
+            <Text style={styles.buttonText}>Sports</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.button, styles.loginButton]}
-          onPress={() => router.push('./login')}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
-      </View>
+        </View>
     </View>
+
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -77,5 +74,3 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
-
-export default HomeScreen;
