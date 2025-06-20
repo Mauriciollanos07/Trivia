@@ -10,6 +10,8 @@ const HomeScreen = () => {
       <Text style={styles.title}>Trivia Challenge</Text>
       
       <View style={styles.buttonContainer}>
+        <Text style={styles.sectionTitle}>Quiz Categories</Text>
+        
         <TouchableOpacity 
           style={styles.button}
           onPress={() => router.push('./categories')}
@@ -46,8 +48,15 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 40,
+    marginBottom: 30,
     color: '#333',
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 15,
+    color: '#555',
+    alignSelf: 'center',
   },
   buttonContainer: {
     width: '100%',

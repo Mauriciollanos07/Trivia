@@ -4,6 +4,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const API_URL = 'http://127.0.0.1:5000'; // Use this for Android emulator
 // const API_URL = 'http://localhost:5000'; // Use this for iOS simulator
 
+// Open Trivia Database API
+const OPEN_TRIVIA_API_URL = 'https://opentdb.com';
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -58,6 +61,37 @@ interface QuestionsResponse {
   questions: Question[];
 }
 
+// Open Trivia DB interfaces
+export enum OpenTriviaDifficulty {
+  EASY = 'easy',
+  MEDIUM = 'medium',
+  HARD = 'hard',
+}
+
+export enum OpenTriviaType {
+  MULTIPLE = 'multiple',
+  BOOLEAN = 'boolean',
+}
+
+export interface OpenTriviaCategory {
+  id: number;
+  name: string;
+}
+
+export interface OpenTriviaQuestion {
+  category: string;
+  type: string;
+  difficulty: string;
+  question: string;
+  correct_answer: string;
+  incorrect_answers: string[];
+}
+
+export interface OpenTriviaResponse {
+  response_code: number;
+  results: OpenTriviaQuestion[];
+}
+
 export const fetchQuestions = async (
   category?: string, 
   difficulty?: number, 
@@ -94,6 +128,72 @@ interface UserStats {
 export const fetchUserStats = async (): Promise<UserStats> => {
   const response = await api.get('/api/scores/stats');
   return response.data;
+};
+
+// Open Trivia DB API functions
+export const fetchOpenTriviaCategories = async (): Promise<OpenTriviaCategory[]> => {
+  const response = await axios.get(`${OPEN_TRIVIA_API_URL}/api_category.php`);
+  return response.data.trivia_categories;
+};
+
+export const fetchOpenTriviaQuestions = async (
+  amount: number = 10,
+  categoryId?: number,
+  difficulty?: OpenTriviaDifficulty,
+  type?: OpenTriviaType
+): Promise<OpenTriviaResponse> => {
+  const params: Record<string, string | number> = { amount };
+  
+  if (categoryId) params.category = categoryId;
+  if (difficulty) params.difficulty = difficulty;
+  if (type) params.type = type;
+  
+  const response = await axios.get(`${OPEN_TRIVIA_API_URL}/api.php`, { params });
+  
+  // HTML entities in questions and answers need to be decoded
+  if (response.data.results) {
+    response.data.results = response.data.results.map((q: OpenTriviaQuestion) => ({
+      ...q,
+      question: decodeHTMLEntities(q.question),
+      correct_answer: decodeHTMLEntities(q.correct_answer),
+      incorrect_answers: q.incorrect_answers.map(decodeHTMLEntities)
+    }));
+  }
+  
+  return response.data;
+};
+
+// Helper function to decode HTML entities (like &quot;)
+const decodeHTMLEntities = (text: string): string => {
+  // Simple replacement for common HTML entities
+  return text
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&rsquo;/g, "'")
+    .replace(/&lsquo;/g, "'")
+    .replace(/&ldquo;/g, '"')
+    .replace(/&rdquo;/g, '"')
+    .replace(/&hellip;/g, '...')
+    .replace(/&mdash;/g, '-')
+    .replace(/&ndash;/g, '-');
+};
+
+// Convert Open Trivia DB questions to our app's Question format
+export const convertOpenTriviaQuestions = (openTriviaResponse: OpenTriviaResponse): QuestionsResponse => {
+  const questions = openTriviaResponse.results.map((q, index) => ({
+    id: index + 1,
+    text: q.question,
+    category: q.category,
+    difficulty: q.difficulty === 'easy' ? 1 : q.difficulty === 'medium' ? 2 : 3,
+    correct_answer: q.correct_answer,
+    incorrect_answers: q.incorrect_answers
+  }));
+  
+  return { questions };
 };
 
 export default api;

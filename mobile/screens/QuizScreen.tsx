@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { fetchQuestions, submitScore } from '../services/api';
+import { 
+  fetchOpenTriviaQuestions, 
+  convertOpenTriviaQuestions, 
+  submitScore,
+  OpenTriviaDifficulty,
+  OpenTriviaType
+} from '../services/api';
 import QuestionCard from '../components/QuestionCard';
 
 interface QuizScreenProps {
@@ -33,7 +39,37 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
   const loadQuestions = async () => {
     try {
       setLoading(true);
-      const data = await fetchQuestions(category, difficulty, 10);
+      
+      // Map difficulty from number to OpenTriviaDifficulty enum
+      let openTriviaDifficulty;
+      switch(difficulty) {
+        case 1: openTriviaDifficulty = OpenTriviaDifficulty.EASY; break;
+        case 2: openTriviaDifficulty = OpenTriviaDifficulty.MEDIUM; break;
+        case 3: openTriviaDifficulty = OpenTriviaDifficulty.HARD; break;
+        default: openTriviaDifficulty = undefined;
+      }
+      
+      // Map category string to Open Trivia DB category ID
+      // This is a simplified mapping - you may need to adjust based on your categories
+      let categoryId;
+      switch(category) {
+        case 'general': categoryId = 9; break; // General Knowledge
+        case 'science': categoryId = 17; break; // Science & Nature
+        case 'history': categoryId = 23; break; // History
+        case 'sports': categoryId = 21; break; // Sports
+        default: categoryId = undefined;
+      }
+      
+      // Fetch questions from Open Trivia DB
+      const response = await fetchOpenTriviaQuestions(
+        10, // amount
+        categoryId,
+        openTriviaDifficulty,
+        OpenTriviaType.MULTIPLE // Use multiple choice questions
+      );
+      
+      // Convert to our app's question format
+      const data = convertOpenTriviaQuestions(response);
       setQuestions(data.questions);
       setLoading(false);
     } catch (error) {
