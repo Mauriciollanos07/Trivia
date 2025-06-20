@@ -48,6 +48,72 @@ export const removeToken = async (): Promise<void> => {
   }
 };
 
+// User interfaces
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  user: User;
+}
+
+// Authentication functions
+export const login = async (credentials: LoginCredentials): Promise<User> => {
+  try {
+    const response = await api.post<AuthResponse>('/api/auth/login', credentials);
+    await setToken(response.data.access_token);
+    return response.data.user;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Login failed');
+    }
+    throw new Error('Network error during login');
+  }
+};
+
+export const register = async (userData: RegisterData): Promise<void> => {
+  try {
+    await api.post('/api/auth/register', userData);
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Registration failed');
+    }
+    throw new Error('Network error during registration');
+  }
+};
+
+export const logout = async (): Promise<void> => {
+  await removeToken();
+};
+
+export const getCurrentUser = async (): Promise<User | null> => {
+  try {
+    const token = await getToken();
+    if (!token) return null;
+    
+    const response = await api.get<User>('/api/auth/me');
+    return response.data;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    await removeToken(); // Clear invalid token
+    return null;
+  }
+};
+
 interface Question {
   id: number;
   text: string;

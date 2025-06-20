@@ -1,13 +1,31 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../contexts/AuthContext';
 
 const HomeScreen = () => {
   const router = useRouter();
+  const { user, logout, isLoading } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color="#2196F3" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Trivia Challenge</Text>
+      
+      {user && (
+        <Text style={styles.welcomeText}>Welcome, {user.username}!</Text>
+      )}
       
       <View style={styles.buttonContainer}>
         <Text style={styles.sectionTitle}>Quiz Categories</Text>
@@ -26,12 +44,21 @@ const HomeScreen = () => {
           <Text style={styles.buttonText}>View Stats</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity 
-          style={[styles.button, styles.loginButton]}
-          onPress={() => router.push('./login')}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
+        {user ? (
+          <TouchableOpacity 
+            style={[styles.button, styles.logoutButton]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.buttonText}>Logout</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            style={[styles.button, styles.loginButton]}
+            onPress={() => router.push('./login')}
+          >
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -45,11 +72,20 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 30,
+    marginBottom: 20,
     color: '#333',
+  },
+  welcomeText: {
+    fontSize: 18,
+    color: '#555',
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
@@ -78,6 +114,10 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: '#4CAF50',
+    marginTop: 20,
+  },
+  logoutButton: {
+    backgroundColor: '#f44336',
     marginTop: 20,
   },
   buttonText: {

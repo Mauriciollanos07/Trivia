@@ -2,7 +2,7 @@ from flask import request, jsonify
 from app import db
 from app.routes import auth_bp
 from app.models.user import User
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from marshmallow import ValidationError
 
 # Import schema here instead of globally
@@ -50,3 +50,14 @@ def login():
         'access_token': access_token,
         'user': user_schema.dump(user)
     }), 200
+
+@auth_bp.route('/me', methods=['GET'])
+@jwt_required()
+def get_current_user():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    return jsonify(user_schema.dump(user)), 200
