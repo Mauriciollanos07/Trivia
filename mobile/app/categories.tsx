@@ -16,17 +16,43 @@ export default function  Categories() {
             params: { category: 'general', difficulty: 1 }
           })}
         >
-          <Text style={styles.buttonText}>General Knowledge</Text>
+        <Text style={styles.buttonText}>General Knowledge</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
-        onPress={() => router.push({
+          onPress={() => router.push({
             pathname: './quiz',
             params: { category: 'sports', difficulty: 1 }
           })}>
-            <Text style={styles.buttonText}>Sports</Text>
+          <Text style={styles.buttonText}>Sports</Text>
         </TouchableOpacity>
-        </View>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push({
+            pathname: './quiz',
+            params: { category: 'history', difficulty: 1 }
+          })}
+        >
+          <Text style={styles.buttonText}>History</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push({
+            pathname: './quiz',
+            params: { category: 'science', difficulty: 1 }
+          })}
+        >
+          <Text style={styles.buttonText}>Science</Text>
+        </TouchableOpacity>
+      </View>
+      
+
     </View>
 
   );

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, {isAxiosError} from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'http://127.0.0.1:5000'; // Use this for Android emulator
@@ -78,7 +78,7 @@ export const login = async (credentials: LoginCredentials): Promise<User> => {
     await setToken(response.data.access_token);
     return response.data.user;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || 'Login failed');
     }
     throw new Error('Network error during login');
@@ -89,7 +89,7 @@ export const register = async (userData: RegisterData): Promise<void> => {
   try {
     await api.post('/api/auth/register', userData);
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response) {
+    if (isAxiosError(error) && error.response) {
       throw new Error(error.response.data.message || 'Registration failed');
     }
     throw new Error('Network error during registration');
@@ -182,7 +182,7 @@ export const submitScore = async (scoreData: ScoreData): Promise<any> => {
   return response.data;
 };
 
-interface UserStats {
+export interface UserStats {
   total_games: number;
   average_score: number;
   highest_score: number;
