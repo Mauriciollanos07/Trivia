@@ -191,9 +191,22 @@ export interface UserStats {
   accuracy: number;
 }
 
+export interface GeneralStats {
+  category: string;
+  difficulty: number;
+  questions_answered: number;
+  questions_correct: number;
+  date: string;
+}
+
 export const fetchUserStats = async (): Promise<UserStats> => {
   const response = await api.get('/api/scores/stats');
   return response.data;
+};
+
+export const fetchGeneralStats = async (): Promise<GeneralStats[]> => {
+  const response = await api.get('/api/scores');
+  return response.data.scores;
 };
 
 // Open Trivia DB API functions
