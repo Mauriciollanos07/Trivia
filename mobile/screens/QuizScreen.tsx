@@ -9,6 +9,7 @@ import {
   OpenTriviaType
 } from '../services/api';
 import QuestionCard from '../components/QuestionCard';
+import { AppColors } from '@/constants/Colors';
 
 interface QuizScreenProps {
   category: string;
@@ -132,7 +133,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#2196F3" />
+        <ActivityIndicator size="large" color={AppColors.primaryButton} />
         <Text style={styles.loadingText}>Loading questions...</Text>
       </View>
     );
@@ -158,21 +159,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: AppColors.darkBlue,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: AppColors.darkBlue,
   },
   loadingText: {
     marginTop: 10,
     fontSize: 16,
+    color: AppColors.lightText,
   },
   progress: {
     fontSize: 16,
     marginBottom: 20,
     textAlign: 'center',
+    color: AppColors.lightText,
   },
 });
 

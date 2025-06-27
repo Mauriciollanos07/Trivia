@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { AppColors } from '@/constants/Colors';
 
 export default function  Categories() {
     const router = useRouter();
@@ -58,26 +59,27 @@ export default function  Categories() {
   );
 }
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: AppColors.darkBlue,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 40,
-    color: '#333',
+    color: AppColors.lightText,
   },
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
   },
   button: {
-    backgroundColor: '#2196F3',
+    backgroundColor: AppColors.primaryButton,
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 8,
@@ -91,11 +93,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   loginButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: AppColors.successButton,
     marginTop: 20,
   },
   buttonText: {
-    color: 'white',
+    color: AppColors.lightText,
     fontSize: 18,
     fontWeight: 'bold',
   },

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { AppColors } from '@/constants/Colors';
 
 interface Question {
   id: number;
@@ -76,7 +77,7 @@ const QuestionCard = ({ question, onAnswer }: QuestionCardProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
+    backgroundColor: AppColors.darkerBlue,
     borderRadius: 10,
     padding: 20,
     marginVertical: 10,
@@ -88,12 +89,12 @@ const styles = StyleSheet.create({
   },
   category: {
     fontSize: 14,
-    color: '#666',
+    color: AppColors.mediumText,
     marginBottom: 5,
   },
   difficulty: {
     fontSize: 14,
-    color: '#666',
+    color: AppColors.mediumText,
     marginBottom: 15,
   },
   questionText: {
@@ -101,26 +102,28 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: 20,
     lineHeight: 24,
+    color: AppColors.lightText,
   },
   answersContainer: {
     marginTop: 10,
   },
   answerButton: {
-    backgroundColor: '#f0f0f0',
+    backgroundColor: AppColors.darkestBlue,
     padding: 15,
     borderRadius: 8,
     marginBottom: 10,
   },
   correctAnswer: {
-    backgroundColor: '#d4edda',
+    backgroundColor: AppColors.successButton,
     borderColor: '#c3e6cb',
   },
   wrongAnswer: {
-    backgroundColor: '#f8d7da',
+    backgroundColor: AppColors.dangerButton,
     borderColor: '#f5c6cb',
   },
   answerText: {
     fontSize: 16,
+    color: AppColors.lightText,
   },
 });
 
