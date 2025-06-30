@@ -61,3 +61,31 @@ def get_current_user():
         return jsonify({'message': 'User not found'}), 404
     
     return jsonify(user_schema.dump(user)), 200
+
+@auth_bp.route('/change-password', methods=['POST'])
+@jwt_required()
+def change_password():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    
+    if not user:
+        return jsonify({'message': 'User not found'}), 404
+    
+    data = request.get_json()
+    
+    # Validate current password
+    if not user.check_password(data.get('current_password', '')):
+        return jsonify({'message': 'Current password is incorrect'}), 400
+    
+    # Validate new password
+    try:
+        # Use schema to validate password
+        user_schema.validate_password(data.get('new_password', ''))
+    except ValidationError as err:
+        return jsonify({'message': err.messages}), 400
+    
+    # Set new password
+    user.set_password(data['new_password'])
+    db.session.commit()
+    
+    return jsonify({'message': 'Password changed successfully'}), 200

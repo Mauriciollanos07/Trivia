@@ -276,3 +276,23 @@ export const convertOpenTriviaQuestions = (openTriviaResponse: OpenTriviaRespons
 };
 
 export default api;
+
+// types and function to change password
+
+// Change Password interface
+export interface ChangePasswordData {
+  current_password: string;
+  new_password: string;
+}
+
+// Function to change password
+export const changePassword = async (changePasswordData: ChangePasswordData): Promise<void> => {
+  try {
+    await api.post('/api/auth/change-password', changePasswordData);
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Password change failed');
+    }
+    throw new Error('Network error during password change');
+  }
+};
