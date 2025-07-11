@@ -1,5 +1,5 @@
 import { Stack } from 'expo-router';
-import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, Alert, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { fetchUserStats, UserStats, fetchGeneralStats, GeneralStats, changePassword, getCurrentUser } from '@/services/api';
 import { AppColors } from '@/constants/Colors';
@@ -108,7 +108,8 @@ useEffect(() => {
   return (
     <View style={styles.mainContainer}>
       <Stack.Screen options={{ title: 'Statistics' }} />
-      <Text style={styles.title}>Statistics</Text>
+      <ScrollView>
+        <Text style={styles.title}>Statistics</Text>
       
       {isLoggedIn && (
         <View style={styles.buttonContainer}>
@@ -243,6 +244,7 @@ useEffect(() => {
           </View>
         </View>
       </Modal>
+      </ScrollView>
     </View>
     
 )}
