@@ -4,6 +4,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from app.config import Config
+import os
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -15,9 +16,15 @@ def create_app(config_class=Config):
     
     db.init_app(app)
     migrate.init_app(app, db)
-    CORS(app, resources={r"/*": {"origins": ["http://localhost:8081", "http://localhost:19006", "http://127.0.0.1:8081", "exp://localhost:8081"], 
-                                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-                                "allow_headers": ["Content-Type", "Authorization"]}})
+    
+    # CORS configuration
+    if os.environ.get('FLASK_ENV') == 'production':
+        CORS(app)  # Allow all origins in production
+    else:
+        CORS(app, resources={r"/*": {"origins": ["http://localhost:8081", "http://localhost:19006", "http://127.0.0.1:8081", "exp://localhost:8081"], 
+                                    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                                    "allow_headers": ["Content-Type", "Authorization"]}})
+    
     jwt.init_app(app)
     
     # Import models to ensure they are registered with SQLAlchemy
