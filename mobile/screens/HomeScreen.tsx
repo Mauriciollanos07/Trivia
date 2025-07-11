@@ -1,13 +1,32 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../contexts/AuthContext';
+import { AppColors } from '@/constants/Colors';
 
 const HomeScreen = () => {
   const router = useRouter();
+  const { user, logout, isLoading } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.loadingContainer]}>
+        <ActivityIndicator size="large" color="#2196F3" />
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Trivia Challenge</Text>
+      
+      {user && (
+        <Text style={styles.welcomeText}>Welcome, {user.username}!</Text>
+      )}
       
       <View style={styles.buttonContainer}>
         <Text style={styles.sectionTitle}>Quiz Categories</Text>
@@ -26,12 +45,21 @@ const HomeScreen = () => {
           <Text style={styles.buttonText}>View Stats</Text>
         </TouchableOpacity>
         
-        <TouchableOpacity 
-          style={[styles.button, styles.loginButton]}
-          onPress={() => router.push('./login')}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
+        {user ? (
+          <TouchableOpacity 
+            style={[styles.button, styles.logoutButton]}
+            onPress={handleLogout}
+          >
+            <Text style={styles.buttonText}>Logout</Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity 
+            style={[styles.button, styles.loginButton]}
+            onPress={() => router.push('./login')}
+          >
+            <Text style={styles.buttonText}>Login</Text>
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );
@@ -43,19 +71,28 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: AppColors.darkBlue,
+  },
+  loadingContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    marginBottom: 30,
-    color: '#333',
+    marginBottom: 20,
+    color: AppColors.lightText,
+  },
+  welcomeText: {
+    fontSize: 18,
+    color: AppColors.mediumText,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: '600',
     marginBottom: 15,
-    color: '#555',
+    color: AppColors.mediumText,
     alignSelf: 'center',
   },
   buttonContainer: {
@@ -63,7 +100,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    backgroundColor: '#2196F3',
+    backgroundColor: AppColors.primaryButton,
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 8,
@@ -77,11 +114,15 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   loginButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: AppColors.successButton, // Keep green for login
+    marginTop: 20,
+  },
+  logoutButton: {
+    backgroundColor: AppColors.dangerButton, // Keep red for logout
     marginTop: 20,
   },
   buttonText: {
-    color: 'white',
+    color: AppColors.lightText,
     fontSize: 18,
     fontWeight: 'bold',
   },

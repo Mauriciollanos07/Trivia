@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, {isAxiosError} from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'http://127.0.0.1:5000'; // Use this for Android emulator
@@ -45,6 +45,72 @@ export const removeToken = async (): Promise<void> => {
     await AsyncStorage.removeItem('auth_token');
   } catch (error) {
     console.error('Error removing token:', error);
+  }
+};
+
+// User interfaces
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface RegisterData {
+  username: string;
+  email: string;
+  password: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  user: User;
+}
+
+// Authentication functions
+export const login = async (credentials: LoginCredentials): Promise<User> => {
+  try {
+    const response = await api.post<AuthResponse>('/api/auth/login', credentials);
+    await setToken(response.data.access_token);
+    return response.data.user;
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Login failed');
+    }
+    throw new Error('Network error during login');
+  }
+};
+
+export const register = async (userData: RegisterData): Promise<void> => {
+  try {
+    await api.post('/api/auth/register', userData);
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Registration failed');
+    }
+    throw new Error('Network error during registration');
+  }
+};
+
+export const logout = async (): Promise<void> => {
+  await removeToken();
+};
+
+export const getCurrentUser = async (): Promise<User | null> => {
+  try {
+    const token = await getToken();
+    if (!token) return null;
+    
+    const response = await api.get<User>('/api/auth/me');
+    return response.data;
+  } catch (error) {
+    console.error('Error getting current user:', error);
+    await removeToken(); // Clear invalid token
+    return null;
   }
 };
 
@@ -116,7 +182,7 @@ export const submitScore = async (scoreData: ScoreData): Promise<any> => {
   return response.data;
 };
 
-interface UserStats {
+export interface UserStats {
   total_games: number;
   average_score: number;
   highest_score: number;
@@ -125,9 +191,22 @@ interface UserStats {
   accuracy: number;
 }
 
+export interface GeneralStats {
+  category: string;
+  difficulty: number;
+  questions_answered: number;
+  questions_correct: number;
+  date: string;
+}
+
 export const fetchUserStats = async (): Promise<UserStats> => {
   const response = await api.get('/api/scores/stats');
   return response.data;
+};
+
+export const fetchGeneralStats = async (): Promise<GeneralStats[]> => {
+  const response = await api.get('/api/scores');
+  return response.data.scores;
 };
 
 // Open Trivia DB API functions
@@ -197,3 +276,23 @@ export const convertOpenTriviaQuestions = (openTriviaResponse: OpenTriviaRespons
 };
 
 export default api;
+
+// types and function to change password
+
+// Change Password interface
+export interface ChangePasswordData {
+  current_password: string;
+  new_password: string;
+}
+
+// Function to change password
+export const changePassword = async (changePasswordData: ChangePasswordData): Promise<void> => {
+  try {
+    await api.post('/api/auth/change-password', changePasswordData);
+  } catch (error) {
+    if (isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || 'Password change failed');
+    }
+    throw new Error('Network error during password change');
+  }
+};

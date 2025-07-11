@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { AppColors } from '@/constants/Colors';
 
 export default function  Categories() {
     const router = useRouter();
@@ -16,21 +17,48 @@ export default function  Categories() {
             params: { category: 'general', difficulty: 1 }
           })}
         >
-          <Text style={styles.buttonText}>General Knowledge</Text>
+        <Text style={styles.buttonText}>General Knowledge</Text>
         </TouchableOpacity>
+      </View>
+      <View style={styles.buttonContainer}>
         <TouchableOpacity
           style={styles.button}
-        onPress={() => router.push({
+          onPress={() => router.push({
             pathname: './quiz',
             params: { category: 'sports', difficulty: 1 }
           })}>
-            <Text style={styles.buttonText}>Sports</Text>
+          <Text style={styles.buttonText}>Sports</Text>
         </TouchableOpacity>
-        </View>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push({
+            pathname: './quiz',
+            params: { category: 'history', difficulty: 1 }
+          })}
+        >
+          <Text style={styles.buttonText}>History</Text>
+        </TouchableOpacity>
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => router.push({
+            pathname: './quiz',
+            params: { category: 'science', difficulty: 1 }
+          })}
+        >
+          <Text style={styles.buttonText}>Science</Text>
+        </TouchableOpacity>
+      </View>
+      
+
     </View>
 
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -38,20 +66,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: AppColors.darkBlue,
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     marginBottom: 40,
-    color: '#333',
+    color: AppColors.lightText,
   },
   buttonContainer: {
     width: '100%',
     alignItems: 'center',
   },
   button: {
-    backgroundColor: '#2196F3',
+    backgroundColor: AppColors.primaryButton,
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 8,
@@ -65,11 +93,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   loginButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: AppColors.successButton,
     marginTop: 20,
   },
   buttonText: {
-    color: 'white',
+    color: AppColors.lightText,
     fontSize: 18,
     fontWeight: 'bold',
   },

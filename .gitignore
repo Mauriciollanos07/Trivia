@@ -66,6 +66,14 @@ db.sqlite3-journal
 instance/
 .webassets-cache
 
+# Environment variables
+backend/.env
+.env
+
+# Database files
+backend/instance/*.db
+*.db
+
 # Scrapy stuff:
 .scrapy
 
@@ -202,3 +210,9 @@ mobile/yarn-error.log*
 
 # notes files
 mobile/npmNotes.txt
+
+# Markdown files except README
+*.md
+!README.md
+pasos-faltantes-para-despliegue.md
+recomendaciones-generales-despliegue-en-stroes.md

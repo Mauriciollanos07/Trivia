@@ -1,5 +1,6 @@
 import { Stack, useLocalSearchParams, useRouter  } from 'expo-router';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { AppColors } from '@/constants/Colors';
 
 export default function Results() {
   const router = useRouter();
@@ -63,16 +64,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: AppColors.darkBlue,
   },
   title: {
     fontSize: 28,
     fontWeight: 'bold',
     marginBottom: 30,
-    color: '#333',
+    color: AppColors.lightText,
   },
   resultCard: {
-    backgroundColor: 'white',
+    backgroundColor: AppColors.darkerBlue,
     borderRadius: 10,
     padding: 20,
     width: '100%',
@@ -87,28 +88,29 @@ const styles = StyleSheet.create({
   scoreText: {
     fontSize: 20,
     marginBottom: 10,
+    color: AppColors.lightText,
   },
   scoreValue: {
     fontWeight: 'bold',
-    color: '#2196F3',
+    color: AppColors.primaryButton,
   },
   percentageText: {
     fontSize: 36,
     fontWeight: 'bold',
-    color: '#2196F3',
+    color: AppColors.primaryButton,
     marginBottom: 20,
   },
   categoryText: {
     fontSize: 16,
-    color: '#666',
+    color: AppColors.mediumText,
     marginBottom: 5,
   },
   difficultyText: {
     fontSize: 16,
-    color: '#666',
+    color: AppColors.mediumText,
   },
   button: {
-    backgroundColor: '#2196F3',
+    backgroundColor: AppColors.primaryButton,
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 8,
@@ -117,10 +119,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   newQuizButton: {
-    backgroundColor: '#4CAF50',
+    backgroundColor: AppColors.successButton,
   },
   buttonText: {
-    color: 'white',
+    color: AppColors.lightText,
     fontSize: 18,
     fontWeight: 'bold',
   },
