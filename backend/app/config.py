@@ -10,7 +10,9 @@ class Config:
     #if database_url and database_url.startswith('postgres://'):
     #    database_url = database_url.replace('postgres://', 'postgresql://', 1)
     
-    SQLALCHEMY_DATABASE_URI = database_url or 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), '../instance/trivia.db')
+    #SQLALCHEMY_DATABASE_URI = database_url or 'sqlite:///' + os.path.join(os.path.abspath(os.path.dirname(__file__)), '../instance/trivia.db')
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/trivia.db'
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # Security - Remove fallback values for production
