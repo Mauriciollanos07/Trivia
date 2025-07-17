@@ -69,6 +69,7 @@ instance/
 # Environment variables
 backend/.env
 .env
+mobile/.env
 
 # Database files
 backend/instance/*.db

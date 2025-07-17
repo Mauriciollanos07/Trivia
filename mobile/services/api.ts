@@ -1,8 +1,13 @@
 import axios, {isAxiosError} from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://127.0.0.1:5000'; // Use this for Android emulator
-// const API_URL = 'http://localhost:5000'; // Use this for iOS simulator
+// Production API URL - replace with your actual Render URL
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://trivia-6xsr.onrender.com';
+
+// For local development, uncomment one of these:
+// const API_URL = 'http://127.0.0.1:5001'; // Browser/localhost
+// const API_URL = 'http://10.0.2.2:5001'; // Android emulator
+// const API_URL = 'http://localhost:5001'; // iOS simulator
 
 // Open Trivia Database API
 const OPEN_TRIVIA_API_URL = 'https://opentdb.com';
@@ -74,12 +79,20 @@ export interface AuthResponse {
 // Authentication functions
 export const login = async (credentials: LoginCredentials): Promise<User> => {
   try {
+    console.log('Attempting login to:', API_URL);
     const response = await api.post<AuthResponse>('/api/auth/login', credentials);
     await setToken(response.data.access_token);
     return response.data.user;
   } catch (error) {
-    if (isAxiosError(error) && error.response) {
-      throw new Error(error.response.data.message || 'Login failed');
+    console.error('Login error:', error);
+    if (isAxiosError(error)) {
+      if (error.response) {
+        console.error('Response error:', error.response.status, error.response.data);
+        throw new Error(error.response.data?.message || `Server error: ${error.response.status}`);
+      } else if (error.request) {
+        console.error('Network error - no response received');
+        throw new Error('Cannot connect to server. Check your network connection.');
+      }
     }
     throw new Error('Network error during login');
   }
