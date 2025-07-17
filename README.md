@@ -8,6 +8,10 @@ A full-stack trivia application with a Flask backend API and React Native mobile
 - `mobile/` - React Native mobile app
 - `docs/` - Project documentation
 
+## Deployment
+
+This app can be deployed to Render with PostgreSQL. See [DEPLOY.md](DEPLOY.md) for detailed instructions.
+
 ## Getting Started
 
 ### Backend Setup

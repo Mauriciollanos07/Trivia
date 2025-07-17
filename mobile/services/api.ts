@@ -1,12 +1,23 @@
 import axios, {isAxiosError} from 'axios';
+import {Platform} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Local development URLs
-// const API_URL = 'http://127.0.0.1:5000'; // Use this for Android emulator
-// const API_URL = 'http://localhost:5000'; // Use this for iOS simulator
+// API URL Configuration
+let API_URL = 'http://127.0.0.1:5000'; // Default for local development (Android)
 
-// Production URL - replace with your Render URL
-const API_URL = 'https://trivia-api.onrender.com'; // Update this with your actual Render URL
+// Check if running in production or development
+if (process.env.NODE_ENV === 'production') {
+  API_URL = 'https://trivia-api.onrender.com'; // Replace with your actual Render URL
+} else {
+  // For local development
+  if (Platform.OS === 'ios') {
+    API_URL = 'http://localhost:5000'; // iOS simulator
+  }
+  // Otherwise use the default Android URL
+}
+
+console.log(`Using API URL: ${API_URL}`);
+
 
 // Open Trivia Database API
 const OPEN_TRIVIA_API_URL = 'https://opentdb.com';
