@@ -17,19 +17,20 @@ def create_app(config_class=Config):
     db.init_app(app)
     migrate.init_app(app, db)
     
-    # CORS configuration
-    if os.environ.get('FLASK_ENV') == 'production':
-        CORS(app, resources={r"/*": {"origins": ["https://your-frontend-domain.com"], 
-                                    "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-                                    "allow_headers": ["Content-Type", "Authorization"]}})
-    else:
-        CORS(app)  # Allow all origins in development
+    # CORS configuration - Allow all origins for testing
+    CORS(app, resources={r"/*": {"origins": "*", 
+                                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                                "allow_headers": ["Content-Type", "Authorization"]}})
+    
     
     jwt.init_app(app)
     
     # Import models to ensure they are registered with SQLAlchemy
     with app.app_context():
         from app.models import user, score, question
+        
+        # Create all tables if they don't exist
+        db.create_all()
     
     # Initialize Marshmallow
     from app.schemas import init_ma
