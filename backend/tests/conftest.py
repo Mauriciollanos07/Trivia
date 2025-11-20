@@ -8,7 +8,9 @@ def app():
     app = create_app()
     app.config.update({
         'TESTING': True,
-        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:'
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///:memory:',
+        'SECRET_KEY': 'test-secret-key',
+        'JWT_SECRET_KEY': 'test-jwt-secret-key',
     })
     
     with app.app_context():
@@ -31,7 +33,7 @@ def auth_headers(client):
         db.session.commit()
     
     # Login and get token
-    response = client.post('/login', json={
+    response = client.post('/api/auth/login', json={
         'username': 'testuser',
         'password': 'password123'
     })

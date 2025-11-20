@@ -1,6 +1,6 @@
 def test_add_score(client, auth_headers):
     # Add a score
-    response = client.post('/scores', 
+    response = client.post('/api/scores', 
                           json={
                               'score': 100,
                               'category': 'Geography',
@@ -14,7 +14,7 @@ def test_add_score(client, auth_headers):
 
 def test_get_user_scores(client, auth_headers):
     # Add a score first
-    client.post('/scores', 
+    client.post('/api/scores', 
                json={
                    'score': 100,
                    'category': 'Geography',
@@ -25,7 +25,7 @@ def test_get_user_scores(client, auth_headers):
                headers=auth_headers)
     
     # Get user scores
-    response = client.get('/scores', headers=auth_headers)
+    response = client.get('/api/scores', headers=auth_headers)
     assert response.status_code == 200
     data = response.get_json()
     assert len(data['scores']) == 1
@@ -34,7 +34,7 @@ def test_get_user_scores(client, auth_headers):
 
 def test_get_user_stats(client, auth_headers):
     # Add a score first
-    client.post('/scores', 
+    client.post('/api/scores', 
                json={
                    'score': 100,
                    'category': 'Geography',
@@ -45,7 +45,7 @@ def test_get_user_stats(client, auth_headers):
                headers=auth_headers)
     
     # Get user stats
-    response = client.get('/scores/stats', headers=auth_headers)
+    response = client.get('/api/scores/stats', headers=auth_headers)
     assert response.status_code == 200
     data = response.get_json()
     assert data['total_games'] == 1

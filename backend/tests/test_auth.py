@@ -1,5 +1,5 @@
 def test_register(client):
-    response = client.post('/register', json={
+    response = client.post('/api/auth/register', json={
         'username': 'newuser',
         'email': 'new@example.com',
         'password': 'password123'
@@ -9,18 +9,19 @@ def test_register(client):
 
 def test_login(client):
     # Register a user first
-    client.post('/register', json={
+    client.post('/api/auth/register', json={
         'username': 'loginuser',
         'email': 'login@example.com',
         'password': 'password123'
     })
     
     # Test login
-    response = client.post('/login', json={
+    response = client.post('/api/auth/login', json={
         'username': 'loginuser',
         'password': 'password123'
     })
     assert response.status_code == 200
-    assert 'access_token' in response.get_json()
-    assert 'user_id' in response.get_json()
-    assert 'username' in response.get_json()
+    data = response.get_json()
+    assert 'access_token' in data
+    assert 'user' in data
+    assert data['user']['username'] == 'loginuser'
