@@ -86,36 +86,36 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
   };
 
   const handleAnswer = (isCorrect: boolean) => {
-    if (isCorrect) {
-      setScore(score + 1);
-    }
-    
-    setAnswersSelected([...answersSelected, {
+    // Calculate the next score synchronously to avoid stale state
+    const nextScore = isCorrect ? score + 1 : score;
+
+    setScore(nextScore);
+    setAnswersSelected(prev => [...prev, {
       questionId: questions[currentQuestion].id,
       correct: isCorrect
     }]);
 
     if (currentQuestion < questions.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+      setCurrentQuestion(prev => prev + 1);
     } else {
-      finishQuiz();
+      finishQuiz(nextScore);
     }
   };
 
-  const finishQuiz = async () => {
+  const finishQuiz = async (finalScore: number) => {
     try {
       await submitScore({
-        score,
+        score: finalScore,
         category,
         difficulty,
         questions_answered: questions.length,
-        questions_correct: score
+        questions_correct: finalScore
       });
       
       router.push({
-        pathname: './results',
+        pathname: '/results',
         params: {
-          score,
+          score: finalScore,
           total: questions.length,
           category,
           difficulty
@@ -125,9 +125,9 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
       console.error('Error submitting score:', error);
       // Still navigate to results even if score submission fails
       router.replace({
-        pathname: './results',
+        pathname: '/results',
         params: {
-          score,
+          score: finalScore,
           total: questions.length,
           category,
           difficulty

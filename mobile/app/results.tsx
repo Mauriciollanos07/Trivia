@@ -58,7 +58,7 @@ export default function Results() {
         <TouchableOpacity 
           style={[styles.button, styles.newQuizButton]}
           onPress={() => router.push({
-            pathname: './quiz',
+            pathname: '/quiz',
             params: { category, difficulty }
           })}
         >

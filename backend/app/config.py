@@ -7,14 +7,18 @@ load_dotenv()
 class Config:
     # Database
     database_url = os.environ.get('DATABASE_URL')
-    #if database_url and database_url.startswith('postgres://'):
-    #    database_url = database_url.replace('postgres://', 'postgresql://', 1)
+    if database_url and database_url.startswith('postgres://'):
+        database_url = database_url.replace('postgres://', 'postgresql://', 1)
     
-    # For Render deployment - use /tmp directory which is writable
+    # Ensure instance directory exists for SQLite
+    instance_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../instance'))
+    os.makedirs(instance_dir, exist_ok=True)
+    
+    # Use Render tmp dir when on Render, otherwise use provided DATABASE_URL or local SQLite
     if os.environ.get('RENDER') == 'true':
         SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/trivia.db'
     else:
-        SQLALCHEMY_DATABASE_URI = 'sqlite:///instance/trivia.db'
+        SQLALCHEMY_DATABASE_URI = database_url or f"sqlite:///{os.path.join(instance_dir, 'trivia.db')}"
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
