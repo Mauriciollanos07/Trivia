@@ -24,12 +24,6 @@ export default function Stats() {
  const [isLoading, setIsLoading] = useState<boolean>(false);
  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
- // Add this somewhere in your component to test
-useEffect(() => {
-  console.log('Testing Alert');
-  Alert.alert('Test', 'This is a test alert');
-}, []);
-
  // load stats when the component mounts
  useEffect(() => {
    const checkLoginStatus = async () => {

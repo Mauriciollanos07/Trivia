@@ -12,6 +12,17 @@ export default function Results() {
   const difficulty = Number(params.difficulty);
   
   const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+
+  if (!category || isNaN(difficulty) || isNaN(score) || isNaN(total)) {
+    // If parameters are invalid, show an error message
+    console.error('Invalid quiz parameters:', { category, difficulty, score, total });
+    return (
+      <View style={styles.container}>
+        <Text style={styles.title}>Invalid quiz parameters</Text>
+        <Text>Please go back and select a category.</Text>
+      </View>
+    );
+  }
   
   return (
     <>

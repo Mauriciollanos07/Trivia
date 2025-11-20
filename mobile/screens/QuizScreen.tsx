@@ -38,6 +38,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
   }, []);
 
   const loadQuestions = async () => {
+    console.log('Loading questions for category:', category, 'difficulty:', difficulty);
     try {
       setLoading(true);
       
@@ -58,6 +59,11 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
         case 'science': categoryId = 17; break; // Science & Nature
         case 'history': categoryId = 23; break; // History
         case 'sports': categoryId = 21; break; // Sports
+        case 'entertainment: film': categoryId = 11; break; // Entertainment: Film
+        case 'entertainment: television': categoryId = 14; break; // Entertainment: Television
+        case 'entertainment: video games': categoryId = 15; break; // Entertainment: Video Games
+        case 'entertainment: music': categoryId = 12; break; // Entertainment: Music
+        case 'entertainment: books': categoryId = 10; break; // Entertainment: Books
         default: categoryId = undefined;
       }
       
@@ -118,7 +124,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
     } catch (error) {
       console.error('Error submitting score:', error);
       // Still navigate to results even if score submission fails
-      router.push({
+      router.replace({
         pathname: './results',
         params: {
           score,
@@ -129,6 +135,9 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
       });
     }
   };
+  if (!category || isNaN(difficulty)) {
+    return <Text>Invalid quiz parameters. Please go back and select a category.</Text>;
+  }
 
   if (loading) {
     return (
