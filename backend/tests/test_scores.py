@@ -1,51 +1,53 @@
-def test_add_score(client, auth_headers):
-    # Add a score
-    response = client.post('/scores', 
+def test_add_score(client):
+    # Add a score as guest
+    response = client.post('/api/scores', 
                           json={
                               'score': 100,
                               'category': 'Geography',
                               'difficulty': 2,
                               'questions_answered': 10,
-                              'questions_correct': 8
-                          },
-                          headers=auth_headers)
+                              'questions_correct': 8,
+                              'player_name': 'GuestPlayer'
+                          })
     assert response.status_code == 201
-    assert response.get_json()['message'] == 'Score added successfully'
+    data = response.get_json()
+    assert data['message'] == 'Score added successfully'
+    assert data['score']['username'] == 'GuestPlayer'
 
-def test_get_user_scores(client, auth_headers):
+def test_get_user_scores(client):
     # Add a score first
-    client.post('/scores', 
+    client.post('/api/scores', 
                json={
                    'score': 100,
                    'category': 'Geography',
                    'difficulty': 2,
                    'questions_answered': 10,
-                   'questions_correct': 8
-               },
-               headers=auth_headers)
+                   'questions_correct': 8,
+                   'player_name': 'GuestPlayer'
+               })
     
-    # Get user scores
-    response = client.get('/scores', headers=auth_headers)
+    # Get scores
+    response = client.get('/api/scores')
     assert response.status_code == 200
     data = response.get_json()
     assert len(data['scores']) == 1
     assert data['scores'][0]['score'] == 100
     assert data['scores'][0]['category'] == 'Geography'
+    assert data['scores'][0]['username'] == 'GuestPlayer'
 
-def test_get_user_stats(client, auth_headers):
+def test_get_user_stats(client):
     # Add a score first
-    client.post('/scores', 
+    client.post('/api/scores', 
                json={
                    'score': 100,
                    'category': 'Geography',
                    'difficulty': 2,
                    'questions_answered': 10,
                    'questions_correct': 8
-               },
-               headers=auth_headers)
+               })
     
-    # Get user stats
-    response = client.get('/scores/stats', headers=auth_headers)
+    # Get stats (now aggregated)
+    response = client.get('/api/scores/stats')
     assert response.status_code == 200
     data = response.get_json()
     assert data['total_games'] == 1

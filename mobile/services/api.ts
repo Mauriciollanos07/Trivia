@@ -188,10 +188,15 @@ interface ScoreData {
   difficulty?: number;
   questions_answered: number;
   questions_correct: number;
+  player_name?: string;
 }
 
 export const submitScore = async (scoreData: ScoreData): Promise<any> => {
-  const response = await api.post('/api/scores', scoreData);
+  const payload = {
+    player_name: 'Guest',
+    ...scoreData,
+  };
+  const response = await api.post('/api/scores', payload);
   return response.data;
 };
 
@@ -205,6 +210,7 @@ export interface UserStats {
 }
 
 export interface GeneralStats {
+  username?: string;
   category: string;
   difficulty: number;
   questions_answered: number;

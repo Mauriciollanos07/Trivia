@@ -1,32 +1,15 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useAuth } from '../contexts/AuthContext';
 import { AppColors } from '@/constants/Colors';
 
 const HomeScreen = () => {
   const router = useRouter();
-  const { user, logout, isLoading } = useAuth();
-
-  const handleLogout = async () => {
-    await logout();
-  };
-
-  if (isLoading) {
-    return (
-      <View style={[styles.container, styles.loadingContainer]}>
-        <ActivityIndicator size="large" color="#2196F3" />
-      </View>
-    );
-  }
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Trivia Challenge</Text>
-      
-      {user && (
-        <Text style={styles.welcomeText}>Welcome, {user.username}!</Text>
-      )}
+      <Text style={styles.subtitle}>Play as a guest—no login required.</Text>
       
       <View style={styles.buttonContainer}>
         <Text style={styles.sectionTitle}>Quiz Categories</Text>
@@ -44,22 +27,6 @@ const HomeScreen = () => {
         >
           <Text style={styles.buttonText}>View Stats</Text>
         </TouchableOpacity>
-        
-        {user ? (
-          <TouchableOpacity 
-            style={[styles.button, styles.logoutButton]}
-            onPress={handleLogout}
-          >
-            <Text style={styles.buttonText}>Logout</Text>
-          </TouchableOpacity>
-        ) : (
-          <TouchableOpacity 
-            style={[styles.button, styles.loginButton]}
-            onPress={() => router.push('./login')}
-          >
-            <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-        )}
       </View>
     </View>
   );
@@ -83,8 +50,8 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: AppColors.lightText,
   },
-  welcomeText: {
-    fontSize: 18,
+  subtitle: {
+    fontSize: 16,
     color: AppColors.mediumText,
     marginBottom: 20,
   },
@@ -112,14 +79,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  loginButton: {
-    backgroundColor: AppColors.successButton, // Keep green for login
-    marginTop: 20,
-  },
-  logoutButton: {
-    backgroundColor: AppColors.dangerButton, // Keep red for logout
-    marginTop: 20,
   },
   buttonText: {
     color: AppColors.lightText,

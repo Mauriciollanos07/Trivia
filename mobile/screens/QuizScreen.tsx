@@ -32,6 +32,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [answersSelected, setAnswersSelected] = useState<{questionId: number, correct: boolean}[]>([]);
+  const [isFinishing, setIsFinishing] = useState(false);
 
   useEffect(() => {
     loadQuestions();
@@ -98,6 +99,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(prev => prev + 1);
     } else {
+      setIsFinishing(true);
       finishQuiz(nextScore);
     }
   };
@@ -158,6 +160,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
         <QuestionCard
           question={questions[currentQuestion]}
           onAnswer={handleAnswer}
+          disabled={isFinishing}
         />
       )}
     </View>

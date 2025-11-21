@@ -23,13 +23,13 @@ def test_get_questions(client):
         db.session.commit()
     
     # Test getting all questions
-    response = client.get('/questions')
+    response = client.get('/api/questions')
     assert response.status_code == 200
     data = response.get_json()
     assert len(data['questions']) == 2
     
     # Test filtering by category
-    response = client.get('/questions?category=Geography')
+    response = client.get('/api/questions?category=Geography')
     assert response.status_code == 200
     data = response.get_json()
     assert len(data['questions']) == 1

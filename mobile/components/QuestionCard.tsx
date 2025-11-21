@@ -14,9 +14,10 @@ interface Question {
 interface QuestionCardProps {
   question: Question;
   onAnswer: (isCorrect: boolean) => void;
+  disabled?: boolean;
 }
 
-const QuestionCard = ({ question, onAnswer }: QuestionCardProps) => {
+const QuestionCard = ({ question, onAnswer, disabled = false }: QuestionCardProps) => {
   const [answered, setAnswered] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   
@@ -25,7 +26,7 @@ const QuestionCard = ({ question, onAnswer }: QuestionCardProps) => {
     .sort(() => Math.random() - 0.5);
   
   const handleAnswer = (answer: string) => {
-    if (answered) return;
+    if (answered || disabled) return;
     
     setSelectedAnswer(answer);
     setAnswered(true);

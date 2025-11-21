@@ -5,6 +5,8 @@ class Score(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     user = db.relationship('User', backref=db.backref('scores', lazy=True))
+    # Store provided player name for guest submissions
+    player_name = db.Column(db.String(120))
     score = db.Column(db.Integer, nullable=False)
     category = db.Column(db.String(100))
     difficulty = db.Column(db.Integer)
