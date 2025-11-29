@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { AppColors } from '@/constants/Colors';
+import { useTriviaMiles } from '../contexts/TriviaMilesContext';
 
 interface Question {
   id: number;
@@ -13,13 +14,25 @@ interface Question {
 
 interface QuestionCardProps {
   question: Question;
-  onAnswer: (isCorrect: boolean) => void;
+  onAnswer: (isCorrect: boolean, milesUsed: number) => void;
   disabled?: boolean;
+  miles: number;
+  milesUsed: number;
+  setMilesUsed: (miles: number) => void;
 }
 
-const QuestionCard = ({ question, onAnswer, disabled = false }: QuestionCardProps) => {
+const QuestionCard = ({ question, onAnswer, disabled = false, miles, milesUsed, setMilesUsed }: QuestionCardProps) => {
+  const triviaMiles = useTriviaMiles();
   const [answered, setAnswered] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
+  const [eliminatedAnswers, setEliminatedAnswers] = useState<string[]>([]);
+
+  // Reset state when question changes
+  useEffect(() => {
+    setAnswered(false);
+    setSelectedAnswer(null);
+    setEliminatedAnswers([]);
+  }, [question.id]);
   
   // Combine correct and incorrect answers and shuffle them
   const allAnswers = [question.correct_answer, ...question.incorrect_answers]
@@ -35,13 +48,32 @@ const QuestionCard = ({ question, onAnswer, disabled = false }: QuestionCardProp
     
     // Delay to show the result before moving to next question
     setTimeout(() => {
-      onAnswer(isCorrect);
+      onAnswer(isCorrect, milesUsed);
       setAnswered(false);
       setSelectedAnswer(null);
     }, 1000);
   };
   
+  const handleUseMile = () => {
+    if (miles > 0 && !answered) {
+      // Find one incorrect answer to eliminate
+      const incorrectAnswers = question.incorrect_answers.filter(
+        answer => !eliminatedAnswers.includes(answer)
+      );
+      if (incorrectAnswers.length > 0) {
+        const randomIncorrect = incorrectAnswers[Math.floor(Math.random() * incorrectAnswers.length)];
+        setEliminatedAnswers(prev => [...prev, randomIncorrect]);
+        triviaMiles.useMile();
+        setMilesUsed(milesUsed + 1);
+      }
+    }
+  };
+  
   const getButtonStyle = (answer: string) => {
+    if (eliminatedAnswers.includes(answer)) {
+      return [styles.answerButton, styles.eliminatedAnswer];
+    }
+    
     if (!answered || selectedAnswer !== answer) {
       return styles.answerButton;
     }
@@ -60,17 +92,28 @@ const QuestionCard = ({ question, onAnswer, disabled = false }: QuestionCardProp
       
       <Text style={styles.questionText}>{question.text}</Text>
       
+      {miles > 0 && eliminatedAnswers.length < question.incorrect_answers.length && !answered && (
+        <TouchableOpacity style={styles.mileButton} onPress={handleUseMile}>
+          <Text style={styles.mileButtonText}>Use Mile (Eliminate Wrong Answer)</Text>
+        </TouchableOpacity>
+      )}
+      
       <View style={styles.answersContainer}>
-        {allAnswers.map((answer, index) => (
-          <TouchableOpacity
-            key={index}
-            style={getButtonStyle(answer)}
-            onPress={() => handleAnswer(answer)}
-            disabled={answered}
-          >
-            <Text style={styles.answerText}>{answer}</Text>
-          </TouchableOpacity>
-        ))}
+        {allAnswers.map((answer, index) => {
+          const isEliminated = eliminatedAnswers.includes(answer);
+          return (
+            <TouchableOpacity
+              key={index}
+              style={getButtonStyle(answer)}
+              onPress={() => handleAnswer(answer)}
+              disabled={answered || isEliminated}
+            >
+              <Text style={[styles.answerText, isEliminated && styles.eliminatedText]}>
+                {isEliminated ? '❌ ' + answer : answer}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </View>
   );
@@ -125,6 +168,26 @@ const styles = StyleSheet.create({
   answerText: {
     fontSize: 16,
     color: AppColors.lightText,
+  },
+  mileButton: {
+    backgroundColor: AppColors.primaryButton,
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  mileButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  eliminatedAnswer: {
+    backgroundColor: '#444',
+    opacity: 0.5,
+  },
+  eliminatedText: {
+    textDecorationLine: 'line-through',
+    color: '#999',
   },
 });
 

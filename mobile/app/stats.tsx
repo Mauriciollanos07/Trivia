@@ -1,10 +1,12 @@
 import { Stack } from 'expo-router';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchUserStats, UserStats, fetchGeneralStats, GeneralStats } from '@/services/api';
 import { AppColors } from '@/constants/Colors';
 
 export default function Stats() {
+  const [nickname, setNickname] = useState<string>('');
 
   // get color dynamically
   function getScoreStyle(score: number) {
@@ -20,6 +22,15 @@ export default function Stats() {
 
  // load stats when the component mounts
  useEffect(() => {
+   const loadNickname = async () => {
+     try {
+       const savedNickname = await AsyncStorage.getItem('player_nickname');
+       setNickname(savedNickname || 'Guest');
+     } catch (error) {
+       console.error('Error loading nickname:', error);
+     }
+   };
+
    const loadStats = async () => {
      try {
        const stats = await fetchUserStats();
@@ -40,6 +51,7 @@ export default function Stats() {
      }
    };
    
+   loadNickname();
    loadGeneralStats();
    loadStats();
  }, []);
@@ -53,6 +65,7 @@ export default function Stats() {
       <Stack.Screen options={{ title: 'Statistics' }} />
       <ScrollView>
         <Text style={styles.title}>Statistics</Text>
+        <Text style={styles.nickname}>{nickname}'s Stats</Text>
       
       {userStats === null || generalStats === null ? (
         <View style={styles.container}>
@@ -84,8 +97,10 @@ export default function Stats() {
                 <Text style={styles.title2}>TOTAL GAMES: {userStats.total_games}</Text>
                 <Text style={styles.title2}>TOTAL QUESTIONS: {userStats.total_questions}</Text>
                 <Text style={styles.title2}>CORRECT ANSWERS: {userStats.correct_answers}</Text>
-                <Text style={[styles.title2, getScoreStyle(userStats.average_score || 0)]}>AVERAGE SCORE: {(userStats.average_score || 0).toFixed(2)}</Text>
-                <Text style={[styles.title2, getScoreStyle(userStats.highest_score || 0)]}>HIGHEST SCORE: {userStats.highest_score || 0}</Text>
+                <Text style={[styles.title2, getScoreStyle((userStats.average_normal_score || userStats.average_score || 0) / 10)]}>AVG NORMAL SCORE: {(userStats.average_normal_score || userStats.average_score || 0).toFixed(0)}</Text>
+                <Text style={[styles.title2, getScoreStyle((userStats.average_trivialer_score || userStats.average_score || 0) / 10)]}>AVG TRIVIALER SCORE: {(userStats.average_trivialer_score || userStats.average_score || 0).toFixed(0)}</Text>
+                <Text style={[styles.title2, getScoreStyle((userStats.highest_normal_score || userStats.highest_score || 0) / 10)]}>HIGHEST NORMAL: {userStats.highest_normal_score || userStats.highest_score || 0}</Text>
+                <Text style={[styles.title2, getScoreStyle((userStats.highest_trivialer_score || userStats.highest_score || 0) / 10)]}>HIGHEST TRIVIALER: {userStats.highest_trivialer_score || userStats.highest_score || 0}</Text>
                 <Text style={[styles.title2, getScoreStyle((userStats.accuracy || 0)/100)]}>ACCURACY: {(userStats.accuracy || 0).toFixed(2)}%</Text>
               </View>
             </View>
@@ -145,8 +160,15 @@ const styles = StyleSheet.create({
     padding: 20,
     fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
     color: '#ecf0f1', // Light grey text for contrast
+  },
+  nickname: {
+    paddingHorizontal: 20,
+    fontSize: 18,
+    color: AppColors.primaryButton,
+    marginBottom: 20,
+    fontWeight: '600',
   },
   title2: {
     fontSize: 24,

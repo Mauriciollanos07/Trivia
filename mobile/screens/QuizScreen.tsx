@@ -10,6 +10,7 @@ import {
 } from '../services/api';
 import QuestionCard from '../components/QuestionCard';
 import { AppColors } from '@/constants/Colors';
+import { useTriviaMiles } from '../contexts/TriviaMilesContext';
 
 interface QuizScreenProps {
   category: string;
@@ -27,12 +28,14 @@ interface Question {
 
 const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
   const router = useRouter();
+  const { miles, addMile, resetMiles } = useTriviaMiles();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [score, setScore] = useState(0);
   const [loading, setLoading] = useState(true);
   const [answersSelected, setAnswersSelected] = useState<{questionId: number, correct: boolean}[]>([]);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [milesUsed, setMilesUsed] = useState<number>(0);
 
   useEffect(() => {
     loadQuestions();
@@ -88,7 +91,17 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
 
   const handleAnswer = (isCorrect: boolean) => {
     // Calculate the next score synchronously to avoid stale state
-    const nextScore = isCorrect ? score + 1 : score;
+    const nextScore = isCorrect ? score + 10 : score;
+
+    // Add mile if answer is correct
+    if (isCorrect) {
+      addMile();
+    }
+
+    // temporarily reset miles if they reached 0 (should remove for production)
+    if (miles === 0) {
+      resetMiles();
+    }
 
     setScore(nextScore);
     setAnswersSelected(prev => [...prev, {
@@ -100,24 +113,30 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
       setCurrentQuestion(prev => prev + 1);
     } else {
       setIsFinishing(true);
-      finishQuiz(nextScore);
+      console.log('Final score before submission:', nextScore);
+      finishQuiz(nextScore, milesUsed);
     }
   };
 
-  const finishQuiz = async (finalScore: number) => {
+  const finishQuiz = async (answersCorrect: number, milesUsed: number) => {
+    // Calculate points deduction from miles used
+    const pointsDeduction = milesUsed * 2; // Each mile used deducts 2 points
+    const finalScore = Math.max(0, answersCorrect - pointsDeduction); // Ensure score doesn't go below 0
     try {
       await submitScore({
-        score: finalScore,
+        normal_score: answersCorrect,
+        trivialer_score: finalScore,
         category,
         difficulty,
         questions_answered: questions.length,
-        questions_correct: finalScore
+        questions_correct: answersCorrect / 10 // Convert back to number of correct answers
       });
       
       router.push({
         pathname: '/results',
         params: {
-          score: finalScore,
+          normal_score: answersCorrect,
+          trivialer_score: finalScore,
           total: questions.length,
           category,
           difficulty
@@ -129,7 +148,8 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
       router.replace({
         pathname: '/results',
         params: {
-          score: finalScore,
+          normal_score: answersCorrect,
+          trivialer_score: finalScore,
           total: questions.length,
           category,
           difficulty
@@ -152,16 +172,29 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.progress}>
-        Question {currentQuestion + 1} of {questions.length}
-      </Text>
-      
-      {questions.length > 0 && (
-        <QuestionCard
-          question={questions[currentQuestion]}
-          onAnswer={handleAnswer}
-          disabled={isFinishing}
-        />
+      <View style={styles.header}>
+        <Text style={styles.progress}>
+          Question {currentQuestion + 1} of {questions.length}
+        </Text>
+        <Text style={styles.miles}>Miles: {miles}</Text>
+      </View>
+    
+      {isFinishing ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={AppColors.primaryButton} />
+          <Text style={styles.loadingText}>Submitting your score...</Text>
+        </View>
+      ) : (
+        questions.length > 0 && (
+          <QuestionCard
+            question={questions[currentQuestion]}
+            onAnswer={handleAnswer}
+            disabled={isFinishing}
+            miles={miles}
+            milesUsed={milesUsed}
+            setMilesUsed={setMilesUsed}
+          />
+        )
       )}
     </View>
   );
@@ -184,11 +217,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: AppColors.lightText,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   progress: {
     fontSize: 16,
-    marginBottom: 20,
-    textAlign: 'center',
     color: AppColors.lightText,
+  },
+  miles: {
+    fontSize: 16,
+    color: AppColors.primaryButton,
+    fontWeight: 'bold',
   },
 });
 

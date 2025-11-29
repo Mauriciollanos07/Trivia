@@ -15,7 +15,16 @@ def add_score():
     player_name = data.pop('player_name', None) or data.pop('username', None) or 'Guest'
     
     try:
-        # Validate and deserialize input (user_id is optional/ignored for guests)
+        # Extract scores
+        normal_score = data.get('normal_score', 0)
+        trivialer_score = data.get('trivialer_score', 0)
+        
+        # Set legacy score field to normal_score for backward compatibility
+        data['score'] = normal_score
+        data['normal_score'] = normal_score
+        data['trivialer_score'] = trivialer_score
+        
+        # Validate and deserialize input
         score = score_schema.load(data)
         score.user_id = None
         score.player_name = player_name
@@ -36,7 +45,15 @@ def add_score():
 
 @scores_bp.route('', methods=['GET'])
 def get_user_scores():
-    scores = Score.query.order_by(Score.date.desc()).limit(50).all()
+    # Get nickname from request parameters for filtering
+    nickname = request.args.get('nickname')
+    
+    if nickname:
+        # Get scores for specific nickname
+        scores = Score.query.filter_by(player_name=nickname).order_by(Score.date.desc()).all()
+    else:
+        # Get all scores (for general leaderboard)
+        scores = Score.query.order_by(Score.date.desc()).limit(50).all()
     
     # Add username to each score (player_name or linked user)
     result = scores_schema.dump(scores)
@@ -49,11 +66,23 @@ def get_user_scores():
 
 @scores_bp.route('/stats', methods=['GET'])
 def get_user_stats():
-    scores = Score.query.all()
+    # Get nickname from request parameters for filtering
+    nickname = request.args.get('nickname')
+    
+    if nickname:
+        # Get stats for specific nickname
+        scores = Score.query.filter_by(player_name=nickname).all()
+    else:
+        # Get global stats
+        scores = Score.query.all()
     
     if not scores:
         return jsonify({
             'total_games': 0,
+            'average_normal_score': 0,
+            'average_trivialer_score': 0,
+            'highest_normal_score': 0,
+            'highest_trivialer_score': 0,
             'average_score': 0,
             'highest_score': 0,
             'total_questions': 0,
@@ -62,14 +91,30 @@ def get_user_stats():
         }), 200
     
     total_games = len(scores)
-    average_score = sum(s.score for s in scores) / total_games
-    highest_score = max(s.score for s in scores)
+    
+    # Calculate stats for both score types
+    normal_scores = [s.normal_score or s.score or 0 for s in scores]
+    trivialer_scores = [s.trivialer_score or s.score or 0 for s in scores]
+    
+    average_normal_score = sum(normal_scores) / total_games
+    average_trivialer_score = sum(trivialer_scores) / total_games
+    highest_normal_score = max(normal_scores)
+    highest_trivialer_score = max(trivialer_scores)
+    
+    # Legacy fields for backward compatibility
+    average_score = average_normal_score
+    highest_score = highest_normal_score
+    
     total_questions = sum(s.questions_answered or 0 for s in scores)
     correct_answers = sum(s.questions_correct or 0 for s in scores)
     accuracy = (correct_answers / total_questions * 100) if total_questions > 0 else 0
     
     return jsonify({
         'total_games': total_games,
+        'average_normal_score': average_normal_score,
+        'average_trivialer_score': average_trivialer_score,
+        'highest_normal_score': highest_normal_score,
+        'highest_trivialer_score': highest_trivialer_score,
         'average_score': average_score,
         'highest_score': highest_score,
         'total_questions': total_questions,

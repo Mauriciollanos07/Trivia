@@ -6,16 +6,17 @@ export default function Results() {
   const router = useRouter();
   const params = useLocalSearchParams();
   
-  const score = Number(params.score);
+  const normalScore = Number(params.normal_score);
+  const trivialerScore = Number(params.trivialer_score);
   const total = Number(params.total);
   const category = params.category as string;
   const difficulty = Number(params.difficulty);
   
-  const percentage = total > 0 ? Math.round((score / total) * 100) : 0;
+  const percentage = total > 0 ? Math.round((normalScore / total) * 100) : 0;
 
-  if (!category || isNaN(difficulty) || isNaN(score) || isNaN(total)) {
+  if (!category || isNaN(difficulty) || isNaN(normalScore) || isNaN(trivialerScore) || isNaN(total)) {
     // If parameters are invalid, show an error message
-    console.error('Invalid quiz parameters:', { category, difficulty, score, total });
+    console.error('Invalid quiz parameters:', { category, difficulty, normalScore, trivialerScore, total });
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Invalid quiz parameters</Text>
@@ -32,7 +33,11 @@ export default function Results() {
         
         <View style={styles.resultCard}>
           <Text style={styles.scoreText}>
-            Your Score: <Text style={styles.scoreValue}>{score}/{total}</Text>
+            Normal Score: <Text style={styles.scoreValue}>{normalScore}/{total}</Text>
+          </Text>
+          
+          <Text style={styles.scoreText}>
+            Trivialer Score: <Text style={styles.trivialerValue}>{trivialerScore}</Text>
           </Text>
           
           <Text style={styles.percentageText}>
@@ -104,6 +109,10 @@ const styles = StyleSheet.create({
   scoreValue: {
     fontWeight: 'bold',
     color: AppColors.primaryButton,
+  },
+  trivialerValue: {
+    fontWeight: 'bold',
+    color: AppColors.successButton,
   },
   percentageText: {
     fontSize: 36,

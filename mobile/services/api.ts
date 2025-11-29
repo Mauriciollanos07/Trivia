@@ -184,7 +184,8 @@ export const fetchQuestions = async (
 };
 
 interface ScoreData {
-  score: number;
+  normal_score: number;
+  trivialer_score: number;
   category?: string;
   difficulty?: number;
   questions_answered: number;
@@ -211,6 +212,10 @@ export interface UserStats {
   total_games: number;
   average_score: number;
   highest_score: number;
+  average_normal_score?: number;
+  average_trivialer_score?: number;
+  highest_normal_score?: number;
+  highest_trivialer_score?: number;
   total_questions: number;
   correct_answers: number;
   accuracy: number;
@@ -226,13 +231,27 @@ export interface GeneralStats {
 }
 
 export const fetchUserStats = async (): Promise<UserStats> => {
-  const response = await api.get('/api/scores/stats');
-  return response.data;
+  try {
+    const nickname = await AsyncStorage.getItem('player_nickname');
+    const params = nickname ? { nickname } : {};
+    const response = await api.get('/api/scores/stats', { params });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching user stats:', error);
+    throw error;
+  }
 };
 
 export const fetchGeneralStats = async (): Promise<GeneralStats[]> => {
-  const response = await api.get('/api/scores');
-  return response.data.scores;
+  try {
+    const nickname = await AsyncStorage.getItem('player_nickname');
+    const params = nickname ? { nickname } : {};
+    const response = await api.get('/api/scores', { params });
+    return response.data.scores;
+  } catch (error) {
+    console.error('Error fetching general stats:', error);
+    throw error;
+  }
 };
 
 // Open Trivia DB API functions
