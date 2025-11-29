@@ -1,28 +1,62 @@
 import { Stack, useRouter } from 'expo-router';
-import { useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppColors } from '@/constants/Colors';
 
 export default function Login() {
   const router = useRouter();
+  const [nickname, setNickname] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    // Bounce users back home since auth is not required anymore
-    const timer = setTimeout(() => router.replace('/'), 3000);
-    return () => clearTimeout(timer);
-  }, [router]);
+  const handleSubmit = async () => {
+    if (!nickname.trim()) {
+      Alert.alert('Error', 'Please enter a nickname');
+      return;
+    }
+
+    if (nickname.length < 2 || nickname.length > 20) {
+      Alert.alert('Error', 'Nickname must be between 2 and 20 characters');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await AsyncStorage.setItem('player_nickname', nickname.trim());
+      router.replace('/');
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save nickname');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Guest Mode' }} />
+      <Stack.Screen options={{ title: 'Enter Nickname' }} />
       <View style={styles.container}>
-        <Text style={styles.title}>No login needed</Text>
-        <Text style={styles.subtitle}>You can jump right into a quiz as a guest.</Text>
+        <Text style={styles.title}>Enter Your Nickname</Text>
+        <Text style={styles.subtitle}>Choose a nickname to track your trivia progress</Text>
+        
+        <TextInput
+          style={styles.input}
+          placeholder="Enter nickname"
+          placeholderTextColor={AppColors.lightText}
+          value={nickname}
+          onChangeText={setNickname}
+          maxLength={20}
+          autoCapitalize="none"
+          autoCorrect={false}
+        />
+        
         <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.replace('/')}
+          style={[styles.button, loading && styles.buttonDisabled]}
+          onPress={handleSubmit}
+          disabled={loading}
         >
-          <Text style={styles.buttonText}>Back to Home</Text>
+          <Text style={styles.buttonText}>
+            {loading ? 'Setting up...' : 'Start Playing'}
+          </Text>
         </TouchableOpacity>
       </View>
     </>
@@ -46,17 +80,31 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: AppColors.mediumText,
-    marginBottom: 30,
+    marginBottom: 40,
     textAlign: 'center',
+  },
+  input: {
+    width: '100%',
+    height: 50,
+    borderWidth: 1,
+    borderColor: AppColors.primaryButton,
+    borderRadius: 8,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    color: AppColors.lightText,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    marginBottom: 20,
   },
   button: {
     backgroundColor: AppColors.primaryButton,
     paddingVertical: 15,
     paddingHorizontal: 40,
     borderRadius: 8,
-    marginTop: 10,
     width: '80%',
     alignItems: 'center',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
   buttonText: {
     color: AppColors.lightText,

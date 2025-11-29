@@ -4,10 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Production API URL - replace with your actual Render URL
 const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://trivia-6xsr.onrender.com';
 
-// For local development, uncomment one of these:
-// const API_URL = 'http://127.0.0.1:5001'; // Browser/localhost
-// const API_URL = 'http://10.0.2.2:5001'; // Android emulator
-// const API_URL = 'http://localhost:5001'; // iOS simulator
+// For local development:
+const API_URL = 'http://localhost:5000'; // Local Flask server
+
+// For production, use:
+// const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://trivia-6xsr.onrender.com';
+
+// For Android emulator, use:
+// const API_URL = 'http://10.0.2.2:5000';
 
 // Open Trivia Database API
 const OPEN_TRIVIA_API_URL = 'https://opentdb.com';
@@ -192,12 +196,18 @@ interface ScoreData {
 }
 
 export const submitScore = async (scoreData: ScoreData): Promise<any> => {
-  const payload = {
-    player_name: 'Guest',
-    ...scoreData,
-  };
-  const response = await api.post('/api/scores', payload);
-  return response.data;
+  try {
+    const nickname = await AsyncStorage.getItem('player_nickname');
+    const payload = {
+      player_name: nickname || 'Guest',
+      ...scoreData,
+    };
+    const response = await api.post('/api/scores', payload);
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting score:', error);
+    throw error;
+  }
 };
 
 export interface UserStats {

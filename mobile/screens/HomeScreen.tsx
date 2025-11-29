@@ -1,15 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { AppColors } from '@/constants/Colors';
 
 const HomeScreen = () => {
   const router = useRouter();
+  const [nickname, setNickname] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkNickname();
+  }, []);
+
+  const checkNickname = async () => {
+    try {
+      const savedNickname = await AsyncStorage.getItem('player_nickname');
+      if (!savedNickname) {
+        router.replace('/login');
+        return;
+      }
+      setNickname(savedNickname);
+    } catch (error) {
+      console.error('Error checking nickname:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const changeNickname = async () => {
+    await AsyncStorage.removeItem('player_nickname');
+    router.replace('/login');
+  };
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Trivia Challenge</Text>
-      <Text style={styles.subtitle}>Play as a guest—no login required.</Text>
+      <Text style={styles.title}>The Trivialer</Text>
+      <Text style={styles.subtitle}>Welcome, {nickname}!</Text>
       
       <View style={styles.buttonContainer}>
         <Text style={styles.sectionTitle}>Quiz Categories</Text>
@@ -26,6 +57,13 @@ const HomeScreen = () => {
           onPress={() => router.push('./stats')}
         >
           <Text style={styles.buttonText}>View Stats</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          style={[styles.button, styles.changeButton]}
+          onPress={changeNickname}
+        >
+          <Text style={styles.buttonText}>Change Nickname</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -84,6 +122,9 @@ const styles = StyleSheet.create({
     color: AppColors.lightText,
     fontSize: 18,
     fontWeight: 'bold',
+  },
+  changeButton: {
+    backgroundColor: AppColors.mediumText,
   },
 });
 
