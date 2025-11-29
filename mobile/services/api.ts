@@ -1,9 +1,6 @@
 import axios, {isAxiosError} from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Production API URL - replace with your actual Render URL
-const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://trivia-6xsr.onrender.com';
-
 // For local development:
 const API_URL = 'http://localhost:5000'; // Local Flask server
 

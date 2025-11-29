@@ -84,9 +84,9 @@ export default function Stats() {
                 <Text style={styles.title2}>TOTAL GAMES: {userStats.total_games}</Text>
                 <Text style={styles.title2}>TOTAL QUESTIONS: {userStats.total_questions}</Text>
                 <Text style={styles.title2}>CORRECT ANSWERS: {userStats.correct_answers}</Text>
-                <Text style={[styles.title2, getScoreStyle(userStats.average_score)]}>AVERAGE SCORE: {userStats.average_score.toFixed(2)}</Text>
-                <Text style={[styles.title2, getScoreStyle(userStats.highest_score)]}>HIGHEST SCORE: {userStats.highest_score}</Text>
-                <Text style={[styles.title2, getScoreStyle(userStats.accuracy/100)]}>ACCURACY: {userStats.accuracy.toFixed(2)}%</Text>
+                <Text style={[styles.title2, getScoreStyle(userStats.average_score || 0)]}>AVERAGE SCORE: {(userStats.average_score || 0).toFixed(2)}</Text>
+                <Text style={[styles.title2, getScoreStyle(userStats.highest_score || 0)]}>HIGHEST SCORE: {userStats.highest_score || 0}</Text>
+                <Text style={[styles.title2, getScoreStyle((userStats.accuracy || 0)/100)]}>ACCURACY: {(userStats.accuracy || 0).toFixed(2)}%</Text>
               </View>
             </View>
           ) : (
