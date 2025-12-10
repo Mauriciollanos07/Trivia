@@ -2,7 +2,7 @@ import axios, {isAxiosError} from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // For local development:
-const API_URL = 'http://localhost:5000'; // Local Flask server
+const API_URL = 'http://localhost:5001'; // Local Flask server
 
 // For production, use:
 // const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://trivia-6xsr.onrender.com';
@@ -13,11 +13,14 @@ const API_URL = 'http://localhost:5000'; // Local Flask server
 // Open Trivia Database API
 const OPEN_TRIVIA_API_URL = 'https://opentdb.com';
 
+console.log('API URL configured as:', API_URL);
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+  timeout: 10000, // 10 second timeout
 });
 
 // Add token to requests

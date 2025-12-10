@@ -12,7 +12,7 @@ export default function Results() {
   const category = params.category as string;
   const difficulty = Number(params.difficulty);
   
-  const percentage = total > 0 ? Math.round((normalScore / total) * 100) : 0;
+  const percentage = total > 0 ? Math.round((normalScore / total) * 10) : 0;
 
   if (!category || isNaN(difficulty) || isNaN(normalScore) || isNaN(trivialerScore) || isNaN(total)) {
     // If parameters are invalid, show an error message
@@ -27,21 +27,25 @@ export default function Results() {
   
   return (
     <>
-      <Stack.Screen options={{ title: 'Quiz Results' }} />
+      <Stack.Screen options={{ 
+        title: 'Quiz Results',
+        headerLeft: () => null,
+        gestureEnabled: false
+      }} />
       <View style={styles.container}>
         <Text style={styles.title}>Quiz Complete!</Text>
         
         <View style={styles.resultCard}>
-          <Text style={styles.scoreText}>
-            Normal Score: <Text style={styles.scoreValue}>{normalScore}/{total}</Text>
-          </Text>
-          
-          <Text style={styles.scoreText}>
+          <Text style={styles.trivialerScoreText}>
             Trivialer Score: <Text style={styles.trivialerValue}>{trivialerScore}</Text>
           </Text>
           
+          <Text style={styles.scoreText}>
+            Normal Score: <Text style={styles.scoreValue}>{normalScore}/{total * 10}</Text>
+          </Text>
+          
           <Text style={styles.percentageText}>
-            {percentage}%
+            Correct Answers: {percentage}%
           </Text>
           
           <Text style={styles.categoryText}>
@@ -55,17 +59,23 @@ export default function Results() {
         
         <TouchableOpacity 
           style={styles.button}
-          onPress={() => router.push('/')}
+          onPress={() => {
+            router.dismissAll();
+            router.replace('/');
+          }}
         >
           <Text style={styles.buttonText}>Back to Home</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
           style={[styles.button, styles.newQuizButton]}
-          onPress={() => router.push({
-            pathname: '/quiz',
-            params: { category, difficulty }
-          })}
+          onPress={() => {
+            router.dismissAll();
+            router.replace({
+              pathname: '/quiz',
+              params: { category, difficulty }
+            });
+          }}
         >
           <Text style={styles.buttonText}>Try Again</Text>
         </TouchableOpacity>
@@ -110,8 +120,15 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: AppColors.primaryButton,
   },
+  trivialerScoreText: {
+    fontSize: 28,
+    marginBottom: 20,
+    color: AppColors.lightText,
+    textAlign: 'center',
+  },
   trivialerValue: {
     fontWeight: 'bold',
+    fontSize: 32,
     color: AppColors.successButton,
   },
   percentageText: {

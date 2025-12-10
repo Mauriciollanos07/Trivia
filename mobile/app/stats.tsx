@@ -65,7 +65,7 @@ export default function Stats() {
       <Stack.Screen options={{ title: 'Statistics' }} />
       <ScrollView>
         <Text style={styles.title}>Statistics</Text>
-        <Text style={styles.nickname}>{nickname}'s Stats</Text>
+        <Text style={styles.nickname}>{nickname} Stats</Text>
       
       {userStats === null || generalStats === null ? (
         <View style={styles.container}>

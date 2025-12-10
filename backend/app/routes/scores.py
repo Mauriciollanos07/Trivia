@@ -33,7 +33,8 @@ def add_score():
         db.session.commit()
         
         result = score_schema.dump(score)
-        result['username'] = score.player_name
+        if isinstance(result, dict):
+            result['username'] = score.player_name
         
         return jsonify({
             'message': 'Score added successfully',
@@ -47,6 +48,7 @@ def add_score():
 def get_user_scores():
     # Get nickname from request parameters for filtering
     nickname = request.args.get('nickname')
+    print(f"Fetching scores for nickname: {nickname}")
     
     if nickname:
         # Get scores for specific nickname
@@ -59,7 +61,9 @@ def get_user_scores():
     result = scores_schema.dump(scores)
     for score_data, score_obj in zip(result, scores):
         score_data['username'] = score_obj.player_name or (score_obj.user.username if score_obj.user else None)
-    
+
+    print(f"Returning {len(result)} scores")
+
     return jsonify({
         'scores': result
     }), 200
@@ -68,6 +72,8 @@ def get_user_scores():
 def get_user_stats():
     # Get nickname from request parameters for filtering
     nickname = request.args.get('nickname')
+
+    print(f"Fetching stats for nickname: {nickname}")
     
     if nickname:
         # Get stats for specific nickname
@@ -77,6 +83,7 @@ def get_user_stats():
         scores = Score.query.all()
     
     if not scores:
+        print("No scores found, returning zeroed stats")
         return jsonify({
             'total_games': 0,
             'average_normal_score': 0,
@@ -108,6 +115,8 @@ def get_user_stats():
     total_questions = sum(s.questions_answered or 0 for s in scores)
     correct_answers = sum(s.questions_correct or 0 for s in scores)
     accuracy = (correct_answers / total_questions * 100) if total_questions > 0 else 0
+
+    print(f"Returning stats: total_games={total_games}, average_normal_score={average_normal_score}, average_trivialer_score={average_trivialer_score}, highest_normal_score={highest_normal_score}, highest_trivialer_score={highest_trivialer_score}, average_score={average_score}, highest_score={highest_score}, total_questions={total_questions}, correct_answers={correct_answers}, accuracy={accuracy}")
     
     return jsonify({
         'total_games': total_games,

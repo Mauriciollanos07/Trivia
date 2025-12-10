@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { 
   fetchOpenTriviaQuestions, 
@@ -8,7 +8,9 @@ import {
   OpenTriviaDifficulty,
   OpenTriviaType
 } from '../services/api';
+import { QUIZ_CONFIG } from '../constants/quizConfig';
 import QuestionCard from '../components/QuestionCard';
+import Timer from '../components/Timer';
 import { AppColors } from '@/constants/Colors';
 import { useTriviaMiles } from '../contexts/TriviaMilesContext';
 
@@ -36,6 +38,7 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
   const [answersSelected, setAnswersSelected] = useState<{questionId: number, correct: boolean}[]>([]);
   const [isFinishing, setIsFinishing] = useState(false);
   const [milesUsed, setMilesUsed] = useState<number>(0);
+  const [secondsAtEnd, setSecondsAtEnd] = useState<number>(QUIZ_CONFIG.INITIAL_TIME);
 
   useEffect(() => {
     loadQuestions();
@@ -120,8 +123,8 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
 
   const finishQuiz = async (answersCorrect: number, milesUsed: number) => {
     // Calculate points deduction from miles used
-    const pointsDeduction = milesUsed * 2; // Each mile used deducts 2 points
-    const finalScore = Math.max(0, answersCorrect - pointsDeduction); // Ensure score doesn't go below 0
+    // Ensure score doesn't go below 0. miles penality takes 10s and time penality takes units of 1s
+    const finalScore = Math.max(0, (answersCorrect * QUIZ_CONFIG.POINTS_PER_CORRECT_ANSWER) - (milesUsed * QUIZ_CONFIG.MILES_PENALTY_RATE) - (QUIZ_CONFIG.INITIAL_TIME - secondsAtEnd) ); 
     try {
       await submitScore({
         normal_score: answersCorrect,
@@ -170,12 +173,39 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
     );
   }
 
+  if (questions.length === 0) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.errorText}>No questions available</Text>
+        <Text style={styles.errorSubText}>Please try again or select a different category</Text>
+        <TouchableOpacity 
+          style={styles.errorButton}
+          onPress={() => {
+            router.dismissAll();
+            router.replace('/');
+          }}
+        >
+          <Text style={styles.errorButtonText}>Back to Home</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.progress}>
           Question {currentQuestion + 1} of {questions.length}
         </Text>
+        <Timer 
+          initialTime={QUIZ_CONFIG.INITIAL_TIME}
+          onTimeUp={() => {
+            setIsFinishing(true);
+            finishQuiz(score, milesUsed);
+          }}
+          isActive={!loading && !isFinishing}
+          setSecondsAtEnd={setSecondsAtEnd}
+        />
         <Text style={styles.miles}>Miles: {miles}</Text>
       </View>
     
@@ -232,6 +262,30 @@ const styles = StyleSheet.create({
     color: AppColors.primaryButton,
     fontWeight: 'bold',
   },
+  errorText: {
+    fontSize: 24,
+    color: AppColors.lightText,
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  errorSubText: {
+    fontSize: 16,
+    color: AppColors.mediumText,
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  errorButton: {
+    backgroundColor: AppColors.primaryButton,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 8,
+  },
+  errorButtonText: {
+    color: AppColors.lightText,
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
 });
 
 export default QuizScreen;

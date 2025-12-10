@@ -8,7 +8,11 @@ export default function Quiz() {
   
   return (
     <>
-      <Stack.Screen options={{ title: 'Quiz' }} />
+      <Stack.Screen options={{ 
+        title: 'Quiz',
+        headerLeft: () => null,
+        gestureEnabled: false
+      }} />
       <QuizScreen 
         category={category}
         difficulty={difficulty}

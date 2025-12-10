@@ -26,17 +26,17 @@ const QuestionCard = ({ question, onAnswer, disabled = false, miles, milesUsed, 
   const [answered, setAnswered] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [eliminatedAnswers, setEliminatedAnswers] = useState<string[]>([]);
+  const [allAnswers, setAllAnswers] = useState<string[]>([]);
 
   // Reset state when question changes
   useEffect(() => {
     setAnswered(false);
     setSelectedAnswer(null);
     setEliminatedAnswers([]);
+    // Shuffle answers only once per question
+    setAllAnswers([question.correct_answer, ...question.incorrect_answers]
+      .sort(() => Math.random() - 0.5));
   }, [question.id]);
-  
-  // Combine correct and incorrect answers and shuffle them
-  const allAnswers = [question.correct_answer, ...question.incorrect_answers]
-    .sort(() => Math.random() - 0.5);
   
   const handleAnswer = (answer: string) => {
     if (answered || disabled) return;
