@@ -1,14 +1,19 @@
 import axios, {isAxiosError} from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// For local development:
-const API_URL = 'http://localhost:5001'; // Local Flask server
+// Environment-based API URL configuration
+const getApiUrl = () => {
+  if (__DEV__) {
+    // Development mode
+    return 'http://localhost:5001'; // Local Flask server
+    // For Android emulator, use: 'http://10.0.2.2:5001'
+  } else {
+    // Production mode
+    return process.env.EXPO_PUBLIC_API_URL || 'https://trivia-6xsr.onrender.com';
+  }
+};
 
-// For production, use:
-// const API_URL = process.env.EXPO_PUBLIC_API_URL || 'https://trivia-6xsr.onrender.com';
-
-// For Android emulator, use:
-// const API_URL = 'http://10.0.2.2:5000';
+const API_URL = getApiUrl();
 
 // Open Trivia Database API
 const OPEN_TRIVIA_API_URL = 'https://opentdb.com';
@@ -195,6 +200,17 @@ interface ScoreData {
   questions_correct: number;
   player_name?: string;
 }
+
+// Validate player name availability
+export const validatePlayerName = async (playerName: string): Promise<boolean> => {
+  try {
+    const response = await api.get('/api/scores', { params: { nickname: playerName } });
+    return response.data.scores.length === 0; // Available if no scores found
+  } catch (error) {
+    console.error('Error validating player name:', error);
+    return false;
+  }
+};
 
 export const submitScore = async (scoreData: ScoreData): Promise<any> => {
   try {

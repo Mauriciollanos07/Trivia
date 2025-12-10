@@ -14,6 +14,12 @@ def add_score():
     data = request.get_json() or {}
     player_name = data.pop('player_name', None) or data.pop('username', None) or 'Guest'
     
+    # Validate unique player name
+    if player_name != 'Guest':
+        existing_score = Score.query.filter_by(player_name=player_name).first()
+        if existing_score:
+            return jsonify({'message': 'Player name already exists. Please choose a different name.'}), 400
+    
     try:
         # Extract scores
         normal_score = data.get('normal_score', 0)
