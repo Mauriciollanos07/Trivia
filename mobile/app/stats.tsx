@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchUserStats, UserStats, fetchGeneralStats, GeneralStats } from '@/services/api';
 import { AppColors } from '@/constants/Colors';
+import { TextStyles } from '@/constants/Typography';
 
 export default function Stats() {
   const [nickname, setNickname] = useState<string>('');
@@ -62,64 +63,114 @@ export default function Stats() {
 
   return (
     <View style={styles.mainContainer}>
-      <Stack.Screen options={{ title: 'Statistics' }} />
+      <Stack.Screen options={{ title: 'Travel Log' }} />
       <ScrollView>
-        <Text style={styles.title}>Statistics</Text>
-        <Text style={styles.nickname}>{nickname} Stats</Text>
+        <View style={styles.logHeader}>
+          <Text style={styles.logTitle}>TRAVEL LOG</Text>
+          <Text style={styles.travelerName}>{nickname?.toUpperCase()}</Text>
+        </View>
       
       {userStats === null || generalStats === null ? (
-        <View style={styles.container}>
-          <Text style={styles.subtitle}>Statistics will appear after you play a game.</Text>
+        <View style={styles.emptyLogCard}>
+          <Text style={styles.emptyLogText}>NO JOURNEYS RECORDED</Text>
+          <Text style={styles.emptyLogSubtext}>Complete your first trivia journey to see travel statistics</Text>
         </View>
       ) : (
         <>
-          <View style={styles.buttonContainer}>
+          <View style={styles.terminalTabs}>
             <TouchableOpacity 
-              style={statsOption === 'summary' ? styles.buttondisable : styles.button}
+              style={[styles.terminalTab, statsOption === 'summary' && styles.activeTab]}
               onPress={handleOptionChange}
               disabled={statsOption === 'summary'}
             >
-              <Text style={styles.buttonText}>Summary</Text>
+              <Text style={[styles.tabText, statsOption === 'summary' && styles.activeTabText]}>PASSPORT</Text>
             </TouchableOpacity>
             <TouchableOpacity 
-              style={statsOption === 'games' ? styles.buttondisable : styles.button}
+              style={[styles.terminalTab, statsOption === 'games' && styles.activeTab]}
               onPress={handleOptionChange}
               disabled={statsOption === 'games'}
             >
-              <Text style={styles.buttonText}>Recent Games</Text>
+              <Text style={[styles.tabText, statsOption === 'games' && styles.activeTabText]}>FLIGHTS</Text>
             </TouchableOpacity>
           </View>
           
           {statsOption === 'summary' ? (
-            <View>
-              <Text style={styles.title}>OVERALL STATS</Text>
-              <View style={styles.container}>
-                <Text style={styles.title2}>TOTAL GAMES: {userStats.total_games}</Text>
-                <Text style={styles.title2}>TOTAL QUESTIONS: {userStats.total_questions}</Text>
-                <Text style={styles.title2}>CORRECT ANSWERS: {userStats.correct_answers}</Text>
-                <Text style={[styles.title2, getScoreStyle((userStats.average_normal_score || userStats.average_score || 0) / 10)]}>AVG NORMAL SCORE: {(userStats.average_normal_score || userStats.average_score || 0).toFixed(0)}</Text>
-                <Text style={[styles.title2, getScoreStyle((userStats.average_trivialer_score || userStats.average_score || 0) / 10)]}>AVG TRIVIALER SCORE: {(userStats.average_trivialer_score || userStats.average_score || 0).toFixed(0)}</Text>
-                <Text style={[styles.title2, getScoreStyle((userStats.highest_normal_score || userStats.highest_score || 0) / 10)]}>HIGHEST NORMAL: {userStats.highest_normal_score || userStats.highest_score || 0}</Text>
-                <Text style={[styles.title2, getScoreStyle((userStats.highest_trivialer_score || userStats.highest_score || 0) / 10)]}>HIGHEST TRIVIALER: {userStats.highest_trivialer_score || userStats.highest_score || 0}</Text>
-                <Text style={[styles.title2, getScoreStyle((userStats.accuracy || 0)/100)]}>ACCURACY: {(userStats.accuracy || 0).toFixed(2)}%</Text>
+            <View style={styles.passportPage}>
+              <Text style={styles.passportSectionTitle}>TRAVELER STATISTICS</Text>
+              
+              <View style={styles.statsGrid}>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{userStats.total_games}</Text>
+                  <Text style={styles.statLabel}>JOURNEYS</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{userStats.total_questions}</Text>
+                  <Text style={styles.statLabel}>CHALLENGES</Text>
+                </View>
+              </View>
+              
+              <View style={styles.statsGrid}>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{userStats.correct_answers}</Text>
+                  <Text style={styles.statLabel}>ACHIVED</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statNumber}>{(userStats.accuracy || 0).toFixed(1)}%</Text>
+                  <Text style={styles.statLabel}>SUCCESS RATE</Text>
+                </View>
+              </View>
+              
+              <View style={styles.scoreSection}>
+                <Text style={styles.scoreSectionTitle}>PERFORMANCE RECORDS</Text>
+                <View style={styles.scoreRow}>
+                  <Text style={styles.scoreLabel}>AVG FLIGHT SCORE:</Text>
+                  <Text style={[styles.scoreValue, getScoreStyle((userStats.average_normal_score || 0) / 10)]}>
+                    {(userStats.average_normal_score || 0).toFixed(0)}
+                  </Text>
+                </View>
+                <View style={styles.scoreRow}>
+                  <Text style={styles.scoreLabel}>AVG TRIVIALER SCORE:</Text>
+                  <Text style={[styles.scoreValue, getScoreStyle((userStats.average_trivialer_score || 0) / 10)]}>
+                    {(userStats.average_trivialer_score || 0).toFixed(0)}
+                  </Text>
+                </View>
+                <View style={styles.scoreRow}>
+                  <Text style={styles.scoreLabel}>BEST FLIGHT:</Text>
+                  <Text style={[styles.scoreValue, getScoreStyle((userStats.highest_normal_score || 0) / 10)]}>
+                    {userStats.highest_normal_score || 0}
+                  </Text>
+                </View>
+                <View style={styles.scoreRow}>
+                  <Text style={styles.scoreLabel}>BEST TRIVIALER SCORE:</Text>
+                  <Text style={[styles.scoreValue, getScoreStyle((userStats.highest_trivialer_score || 0) / 10)]}>
+                    {userStats.highest_trivialer_score || 0}
+                  </Text>
+                </View>
               </View>
             </View>
           ) : (
-            <View>
-              <Text style={styles.title}>RECENT GAMES</Text>
+            <View style={styles.flightLog}>
+              <Text style={styles.passportSectionTitle}>FLIGHT HISTORY</Text>
               {generalStats.length === 0 ? (
-                <View style={styles.container}>
-                  <Text style={styles.subtitle}>No games played yet</Text>
+                <View style={styles.emptyLogCard}>
+                  <Text style={styles.emptyLogText}>NO FLIGHTS RECORDED</Text>
                 </View>
               ) : (
                 generalStats.map((stat, index) => (
-                  <View key={index} style={styles.container2}>
-                    <Text style={styles.title2}>Game on {stat.date}</Text>
-                    <Text style={styles.subtitle}>Player: {stat.username || 'Guest'}</Text>
-                    <Text style={styles.subtitle}>Category: {stat.category}</Text>
-                    <Text style={styles.subtitle}>Difficulty: {stat.difficulty}</Text>
-                    <Text style={styles.subtitle}>Questions Answered: {stat.questions_answered}</Text>
-                    <Text style={styles.subtitle}>Questions Correct: {stat.questions_correct}</Text>
+                  <View key={index} style={styles.flightCard}>
+                    <View style={styles.flightHeader}>
+                      <Text style={styles.flightDate}>{stat.date}</Text>
+                      <View style={styles.flightStamp}>
+                        <Text style={styles.stampText}>COMPLETED</Text>
+                      </View>
+                    </View>
+                    <View style={styles.flightDetails}>
+                      <Text style={styles.flightDetail}>DESTINATION: {stat.category?.toUpperCase()}</Text>
+                      <Text style={styles.flightDetail}>CLASS: LEVEL {stat.difficulty}</Text>
+                      <Text style={styles.flightDetail}>CHALLENGES: {stat.questions_answered}</Text>
+                      <Text style={styles.flightDetail}>ACHIVED: {stat.questions_correct}</Text>
+                      <Text style={styles.flightDetail}>TRIVIALER SCORE: {stat.trivialer_score}</Text>
+                    </View>
                   </View>
                 ))
               )}
@@ -135,70 +186,216 @@ export default function Stats() {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: '#2c3e50', // Darker blue background
+    backgroundColor: AppColors.terminalBlack,
   },
-  container: {
-    flex: 1,
+  
+  // Header
+  logHeader: {
+    backgroundColor: AppColors.cardBackground,
+    borderWidth: 2,
+    borderColor: AppColors.amberGlow,
     padding: 20,
-    backgroundColor: '#2c3e50', // Darker blue background
-  },
-  container2: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#34495e', // Darker grey-blue background
-    borderBottomColor: '#1a2530',
-    borderBottomWidth: 1,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 20,
+    margin: 20,
     alignItems: 'center',
-    backgroundColor: '#2c3e50', // Darker blue background
   },
-  title: {
-    padding: 20,
+  
+  logTitle: {
+    ...TextStyles.terminalHeader,
+    color: AppColors.amberGlow,
     fontSize: 28,
-    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  
+  travelerName: {
+    ...TextStyles.terminalNumber,
+    color: AppColors.goldAccent,
+    fontSize: 16,
+  },
+  
+  // Empty state
+  emptyLogCard: {
+    backgroundColor: AppColors.passportBlue,
+    borderWidth: 2,
+    borderColor: AppColors.goldAccent,
+    padding: 30,
+    margin: 20,
+    alignItems: 'center',
+  },
+  
+  emptyLogText: {
+    ...TextStyles.terminalHeader,
+    color: AppColors.goldAccent,
+    fontSize: 18,
     marginBottom: 10,
-    color: '#ecf0f1', // Light grey text for contrast
   },
-  nickname: {
-    paddingHorizontal: 20,
-    fontSize: 18,
-    color: AppColors.primaryButton,
-    marginBottom: 20,
-    fontWeight: '600',
-  },
-  title2: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#ecf0f1', // Light grey text for contrast
-    textAlign: 'left',
-  },
-  subtitle: {
-    fontSize: 18,
-    color: '#bdc3c7', // Lighter grey text
-  },
-  button: {
-    backgroundColor: '#3498db', // Darker blue for buttons
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  buttondisable: {
-    backgroundColor: '#7f8c8d', // Darker grey for disabled buttons
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
+  
+  emptyLogSubtext: {
+    ...TextStyles.documentBody,
+    color: AppColors.mediumText,
+    fontSize: 14,
     textAlign: 'center',
   },
-  high: { color:  AppColors.successButton, },
-  medium: { color: 'white' },
-  low: { color:  AppColors.dangerButton },
+  
+  // Terminal tabs
+  terminalTabs: {
+    flexDirection: 'row',
+    marginHorizontal: 20,
+    marginBottom: 20,
+  },
+  
+  terminalTab: {
+    flex: 1,
+    backgroundColor: AppColors.cardBackground,
+    borderWidth: 2,
+    borderColor: AppColors.mediumText,
+    paddingVertical: 12,
+    alignItems: 'center',
+  },
+  
+  activeTab: {
+    backgroundColor: AppColors.amberGlow,
+    borderColor: AppColors.goldAccent,
+  },
+  
+  tabText: {
+    ...TextStyles.buttonText,
+    color: AppColors.mediumText,
+    fontSize: 14,
+  },
+  
+  activeTabText: {
+    color: AppColors.lightText,
+  },
+  
+  // Passport page
+  passportPage: {
+    margin: 20,
+  },
+  
+  passportSectionTitle: {
+    ...TextStyles.passportStamp,
+    color: AppColors.goldAccent,
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  
+  statsGrid: {
+    flexDirection: 'row',
+    marginBottom: 15,
+  },
+  
+  statCard: {
+    flex: 1,
+    backgroundColor: AppColors.passportBlue,
+    borderWidth: 2,
+    borderColor: AppColors.goldAccent,
+    padding: 20,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  
+  statNumber: {
+    ...TextStyles.scoreDisplay,
+    color: AppColors.amberGlow,
+    fontSize: 32,
+    marginBottom: 5,
+  },
+  
+  statLabel: {
+    ...TextStyles.passportStamp,
+    color: AppColors.mediumText,
+    fontSize: 12,
+  },
+  
+  // Score section
+  scoreSection: {
+    backgroundColor: AppColors.passportBlue,
+    borderWidth: 2,
+    borderColor: AppColors.goldAccent,
+    padding: 20,
+    marginTop: 10,
+  },
+  
+  scoreSectionTitle: {
+    ...TextStyles.passportStamp,
+    color: AppColors.goldAccent,
+    fontSize: 14,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  
+  scoreRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  
+  scoreLabel: {
+    ...TextStyles.documentBody,
+    color: AppColors.mediumText,
+    fontSize: 14,
+  },
+  
+  scoreValue: {
+    ...TextStyles.terminalNumber,
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  
+  // Flight log
+  flightLog: {
+    margin: 20,
+  },
+  
+  flightCard: {
+    backgroundColor: AppColors.passportBlue,
+    borderWidth: 2,
+    borderColor: AppColors.goldAccent,
+    padding: 20,
+    marginBottom: 15,
+  },
+  
+  flightHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  
+  flightDate: {
+    ...TextStyles.terminalNumber,
+    color: AppColors.lightText,
+    fontSize: 16,
+  },
+  
+  flightStamp: {
+    borderWidth: 2,
+    borderColor: AppColors.visaGreen,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    transform: [{ rotate: '15deg' }],
+  },
+  
+  stampText: {
+    ...TextStyles.passportStamp,
+    color: AppColors.visaGreen,
+    fontSize: 10,
+  },
+  
+  flightDetails: {
+    gap: 8,
+  },
+  
+  flightDetail: {
+    ...TextStyles.documentBody,
+    color: AppColors.mediumText,
+    fontSize: 14,
+  },
+  
+  // Score colors
+  high: { color: AppColors.visaGreen },
+  medium: { color: AppColors.lightText },
+  low: { color: AppColors.alertRed },
 });

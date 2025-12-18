@@ -1,6 +1,7 @@
 import { Stack, useLocalSearchParams, useRouter  } from 'expo-router';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { AppColors } from '@/constants/Colors';
+import { TextStyles, Typography } from '@/constants/Typography';
 
 export default function Results() {
   const router = useRouter();
@@ -10,17 +11,17 @@ export default function Results() {
   const trivialerScore = Number(params.trivialer_score);
   const total = Number(params.total);
   const category = params.category as string;
-  const difficulty = Number(params.difficulty);
+  const difficulty = params.difficulty ? Number(params.difficulty) : undefined;
   
   const percentage = total > 0 ? Math.round((normalScore / total) * 10) : 0;
 
-  if (!category || isNaN(difficulty) || isNaN(normalScore) || isNaN(trivialerScore) || isNaN(total)) {
+  if (!category || isNaN(normalScore) || isNaN(trivialerScore) || isNaN(total)) {
     // If parameters are invalid, show an error message
     console.error('Invalid quiz parameters:', { category, difficulty, normalScore, trivialerScore, total });
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Invalid quiz parameters</Text>
-        <Text>Please go back and select a category.</Text>
+        <Text style={styles.terminalLabel}>INVALID FLIGHT PARAMETERS</Text>
       </View>
     );
   }
@@ -33,51 +34,67 @@ export default function Results() {
         gestureEnabled: false
       }} />
       <View style={styles.container}>
-        <Text style={styles.title}>Quiz Complete!</Text>
+        <Text style={styles.title}>JOURNEY COMPLETE</Text>
         
-        <View style={styles.resultCard}>
-          <Text style={styles.trivialerScoreText}>
-            Trivialer Score: <Text style={styles.trivialerValue}>{trivialerScore}</Text>
-          </Text>
+        {/* Passport-style result card */}
+        <View style={styles.passportCard}>
+          <View style={styles.passportHeader}>
+            <Text style={styles.passportTitle}>TRIVIALER PASSPORT</Text>
+            <View style={styles.stampBorder}>
+              <Text style={styles.stampText}>APPROVED</Text>
+            </View>
+          </View>
           
-          <Text style={styles.scoreText}>
-            Normal Score: <Text style={styles.scoreValue}>{normalScore}/{total * 10}</Text>
-          </Text>
+          <View style={styles.scoreSection}>
+            <Text style={styles.terminalLabel}>TRIVIALER SCORE</Text>
+            <Text style={styles.terminalScore}>{trivialerScore}</Text>
+          </View>
           
-          <Text style={styles.percentageText}>
-            Correct Answers: {percentage}%
-          </Text>
+          <View style={styles.scoreSection}>
+            <Text style={styles.terminalLabel}>FLIGHT SCORE</Text>
+            <Text style={styles.terminalScore}>{normalScore}/{total * 10}</Text>
+          </View>
           
-          <Text style={styles.categoryText}>
-            Category: {category}
-          </Text>
+          <View style={styles.percentageSection}>
+            <Text style={styles.percentageLabel}>SUCCESS RATE</Text>
+            <Text style={styles.percentageValue}>{percentage}%</Text>
+          </View>
           
-          <Text style={styles.difficultyText}>
-            Difficulty: {difficulty}
-          </Text>
+          <View style={styles.detailsSection}>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>DESTINATION:</Text>
+              <Text style={styles.detailValue}>{category.toUpperCase()}</Text>
+            </View>
+            {difficulty && (
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>CLASS:</Text>
+                <Text style={styles.detailValue}>LEVEL {difficulty}</Text>
+              </View>
+            )}
+          </View>
         </View>
         
         <TouchableOpacity 
-          style={styles.button}
+          style={styles.terminalButton}
           onPress={() => {
             router.dismissAll();
             router.replace('/');
           }}
         >
-          <Text style={styles.buttonText}>Back to Home</Text>
+          <Text style={styles.terminalButtonText}>← RETURN TO TERMINAL</Text>
         </TouchableOpacity>
         
         <TouchableOpacity 
-          style={[styles.button, styles.newQuizButton]}
+          style={[styles.terminalButton, styles.departureButton]}
           onPress={() => {
             router.dismissAll();
             router.replace({
               pathname: '/quiz',
-              params: { category, difficulty }
+              params: difficulty ? { category, difficulty } : { category }
             });
           }}
         >
-          <Text style={styles.buttonText}>Try Again</Text>
+          <Text style={styles.terminalButtonText}>NEXT DEPARTURE →</Text>
         </TouchableOpacity>
       </View>
     </>
@@ -90,77 +107,145 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: AppColors.darkBlue,
+    backgroundColor: AppColors.terminalBlack,
   },
   title: {
-    fontSize: 28,
-    fontWeight: 'bold',
+    ...TextStyles.terminalHeader,
+    color: AppColors.amberGlow,
     marginBottom: 30,
-    color: AppColors.lightText,
-  },
-  resultCard: {
-    backgroundColor: AppColors.darkerBlue,
-    borderRadius: 10,
-    padding: 20,
-    width: '100%',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    marginBottom: 30,
-  },
-  scoreText: {
-    fontSize: 20,
-    marginBottom: 10,
-    color: AppColors.lightText,
-  },
-  scoreValue: {
-    fontWeight: 'bold',
-    color: AppColors.primaryButton,
-  },
-  trivialerScoreText: {
-    fontSize: 28,
-    marginBottom: 20,
-    color: AppColors.lightText,
     textAlign: 'center',
   },
-  trivialerValue: {
-    fontWeight: 'bold',
-    fontSize: 32,
-    color: AppColors.successButton,
+  
+  // Passport-style card
+  passportCard: {
+    backgroundColor: AppColors.passportBlue,
+    borderWidth: 3,
+    borderColor: AppColors.goldAccent,
+    borderRadius: 2, // Sharp corners like passport
+    padding: 24,
+    width: '100%',
+    marginBottom: 30,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  percentageText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: AppColors.primaryButton,
+  
+  passportHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: AppColors.goldAccent,
   },
-  categoryText: {
+  
+  passportTitle: {
+    ...TextStyles.passportStamp,
+    color: AppColors.goldAccent,
     fontSize: 16,
-    color: AppColors.mediumText,
-    marginBottom: 5,
   },
-  difficultyText: {
-    fontSize: 16,
-    color: AppColors.mediumText,
+  
+  stampBorder: {
+    borderWidth: 2,
+    borderColor: AppColors.visaGreen,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    transform: [{ rotate: '15deg' }],
   },
-  button: {
-    backgroundColor: AppColors.primaryButton,
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 8,
-    marginVertical: 10,
-    width: '80%',
+  
+  stampText: {
+    ...TextStyles.passportStamp,
+    color: AppColors.visaGreen,
+    fontSize: 12,
+  },
+  
+  // Terminal-style score sections
+  scoreSection: {
+    marginBottom: 15,
     alignItems: 'center',
   },
-  newQuizButton: {
-    backgroundColor: AppColors.successButton,
+  
+  terminalLabel: {
+    ...TextStyles.terminalNumber,
+    color: AppColors.mediumText,
+    fontSize: 14,
+    marginBottom: 5,
   },
-  buttonText: {
+  
+  terminalScore: {
+    ...TextStyles.scoreDisplay,
+    color: AppColors.amberGlow,
+    fontSize: 32,
+  },
+  
+  percentageSection: {
+    alignItems: 'center',
+    marginVertical: 20,
+    paddingVertical: 15,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: AppColors.goldAccent,
+  },
+  
+  percentageLabel: {
+    ...TextStyles.terminalNumber,
+    color: AppColors.mediumText,
+    fontSize: 14,
+    marginBottom: 8,
+  },
+  
+  percentageValue: {
+    ...TextStyles.scoreDisplay,
+    color: AppColors.goldAccent,
+    fontSize: 42,
+  },
+  
+  detailsSection: {
+    marginTop: 15,
+  },
+  
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  
+  detailLabel: {
+    ...TextStyles.documentBody,
+    color: AppColors.mediumText,
+    fontSize: 14,
+  },
+  
+  detailValue: {
+    ...TextStyles.terminalNumber,
     color: AppColors.lightText,
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  
+  // Airport terminal-style buttons
+  terminalButton: {
+    backgroundColor: AppColors.cardBackground,
+    borderWidth: 2,
+    borderColor: AppColors.amberGlow,
+    paddingVertical: 16,
+    paddingHorizontal: 32,
+    marginVertical: 8,
+    width: '90%',
+    alignItems: 'center',
+    // Rectangular, no border radius for terminal feel
+  },
+  
+  departureButton: {
+    backgroundColor: AppColors.amberGlow,
+    borderColor: AppColors.goldAccent,
+  },
+  
+  terminalButtonText: {
+    ...TextStyles.buttonText,
+    color: AppColors.lightText,
+    letterSpacing: 2,
   },
 });

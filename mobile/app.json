@@ -10,6 +10,7 @@
     "newArchEnabled": true,
     "description": "Test your knowledge with fun trivia questions across multiple categories and difficulty levels.",
     "privacy": "public",
+    "privacyPolicyUrl": "https://mauriciollanos07.github.io/TrivialerPrivacyPolicy/",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.maurostudio.thetrivialer",
@@ -22,11 +23,18 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.maurostudio.thetrivialer",
-      "versionCode": 1,
+      "versionCode": 2,
+      "compileSdkVersion": 34,
+      "targetSdkVersion": 34,
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE"
-      ]
+      ],
+      "blockedPermissions": [
+        "com.google.android.gms.permission.AD_ID"
+      ],
+      "proguardVersion": "6.2.2",
+      "label": "The Trivialer"
     },
     "web": {
       "bundler": "metro",
@@ -47,6 +55,12 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "9d36a12b-4072-484d-a6cf-fcb3fd8f4f1e"
+      }
     }
   }
 }

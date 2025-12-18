@@ -121,7 +121,7 @@ const QuestionCard = ({ question, onAnswer, disabled = false, miles, milesUsed, 
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: AppColors.darkerBlue,
+    backgroundColor: AppColors.passportBlue,
     borderRadius: 10,
     padding: 20,
     marginVertical: 10,
@@ -152,10 +152,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   answerButton: {
-    backgroundColor: AppColors.darkestBlue,
+    backgroundColor: AppColors.passportBlue,
     padding: 15,
     borderRadius: 8,
+    borderWidth: 3,
     marginBottom: 10,
+    borderColor: AppColors.amberGlow,
   },
   correctAnswer: {
     backgroundColor: AppColors.successButton,

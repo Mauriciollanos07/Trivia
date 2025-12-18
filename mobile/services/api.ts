@@ -4,7 +4,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // Environment-based API URL configuration
 const getApiUrl = () => {
   if (__DEV__) {
-    // Development mode
+    // Development mode - temporarily using Render for testing
+    //return 'https://trivia-6xsr.onrender.com'; // Render instance
     return 'http://localhost:5001'; // Local Flask server
     // For Android emulator, use: 'http://10.0.2.2:5001'
   } else {
@@ -107,6 +108,54 @@ export const login = async (credentials: LoginCredentials): Promise<User> => {
   }
 };
 
+/**
+ * Register a new user with just a nickname (no password required)
+ * 
+ * Flow:
+ * 1. User enters nickname in mobile app
+ * 2. App calls this function
+ * 3. Backend creates user with unique nickname
+ * 4. Backend returns JWT token
+ * 5. App stores token and user is automatically logged in
+ * 6. All future requests use this token
+ */
+export const registerNickname = async (nickname: string): Promise<User> => {
+  try {
+    console.log('Registering nickname:', nickname);
+    const response = await api.post<AuthResponse>('/api/auth/register-nickname', { nickname });
+    
+    // Store the JWT token for future requests
+    await setToken(response.data.access_token);
+    
+    // Store nickname locally for backward compatibility
+    await AsyncStorage.setItem('player_nickname', nickname);
+    
+    return response.data.user;
+  } catch (error) {
+    console.error('Nickname registration error:', error);
+    if (isAxiosError(error)) {
+      if (error.response) {
+        throw new Error(error.response.data?.message || 'Registration failed');
+      }
+    }
+    throw new Error('Network error during registration');
+  }
+};
+
+/**
+ * Check if a nickname is available before registration
+ * Provides real-time feedback to user
+ */
+export const checkNicknameAvailability = async (nickname: string): Promise<boolean> => {
+  try {
+    const response = await api.post('/api/auth/check-nickname', { nickname });
+    return response.data.available;
+  } catch (error) {
+    console.error('Error checking nickname availability:', error);
+    return false;
+  }
+};
+
 export const register = async (userData: RegisterData): Promise<void> => {
   try {
     await api.post('/api/auth/register', userData);
@@ -119,7 +168,10 @@ export const register = async (userData: RegisterData): Promise<void> => {
 };
 
 export const logout = async (): Promise<void> => {
+  // Clear authentication token
   await removeToken();
+  // Keep nickname for legacy compatibility but user will need to re-register
+  // await AsyncStorage.removeItem('player_nickname');
 };
 
 export const getCurrentUser = async (): Promise<User | null> => {
@@ -201,7 +253,7 @@ interface ScoreData {
   player_name?: string;
 }
 
-// Validate player name availability
+// Legacy function - use checkNicknameAvailability for new registrations
 export const validatePlayerName = async (playerName: string): Promise<boolean> => {
   try {
     const response = await api.get('/api/scores', { params: { nickname: playerName } });
@@ -212,15 +264,34 @@ export const validatePlayerName = async (playerName: string): Promise<boolean> =
   }
 };
 
+/**
+ * Submit score using authentication
+ * 
+ * Flow:
+ * 1. Mobile app calls this function with score data
+ * 2. JWT token is automatically added to request (via interceptor)
+ * 3. Backend verifies token and links score to authenticated user
+ * 4. Score is saved with user_id, ensuring data integrity
+ */
 export const submitScore = async (scoreData: ScoreData): Promise<any> => {
   try {
-    const nickname = await AsyncStorage.getItem('player_nickname');
-    const payload = {
-      player_name: nickname || 'Guest',
-      ...scoreData,
-    };
-    const response = await api.post('/api/scores', payload);
-    return response.data;
+    // Check if user is authenticated
+    const token = await getToken();
+    
+    if (token) {
+      // Authenticated submission - token automatically added by interceptor
+      const response = await api.post('/api/scores', scoreData);
+      return response.data;
+    } else {
+      // Fallback to legacy submission for users without accounts
+      const nickname = await AsyncStorage.getItem('player_nickname');
+      const payload = {
+        player_name: nickname || 'Guest',
+        ...scoreData,
+      };
+      const response = await api.post('/api/scores/legacy', payload);
+      return response.data;
+    }
   } catch (error) {
     console.error('Error submitting score:', error);
     throw error;
@@ -247,26 +318,60 @@ export interface GeneralStats {
   questions_answered: number;
   questions_correct: number;
   date: string;
+  trivialer_score: number
 }
 
+/**
+ * Fetch user statistics
+ * 
+ * Flow:
+ * 1. If user is authenticated (has token), get their stats automatically
+ * 2. If not authenticated, fall back to nickname-based lookup
+ * 3. Backend handles both cases seamlessly
+ */
 export const fetchUserStats = async (): Promise<UserStats> => {
   try {
-    const nickname = await AsyncStorage.getItem('player_nickname');
-    const params = nickname ? { nickname } : {};
-    const response = await api.get('/api/scores/stats', { params });
-    return response.data;
+    const token = await getToken();
+    
+    if (token) {
+      // Authenticated user - backend will use token to get user's stats
+      const response = await api.get('/api/scores/stats');
+      return response.data;
+    } else {
+      // Legacy mode - use nickname parameter
+      const nickname = await AsyncStorage.getItem('player_nickname');
+      const params = nickname ? { nickname } : {};
+      const response = await api.get('/api/scores/stats', { params });
+      return response.data;
+    }
   } catch (error) {
     console.error('Error fetching user stats:', error);
     throw error;
   }
 };
 
+/**
+ * Fetch user's score history
+ * 
+ * Flow:
+ * 1. If user is authenticated, get their score history automatically
+ * 2. If not authenticated, fall back to nickname-based lookup
+ */
 export const fetchGeneralStats = async (): Promise<GeneralStats[]> => {
   try {
-    const nickname = await AsyncStorage.getItem('player_nickname');
-    const params = nickname ? { nickname } : {};
-    const response = await api.get('/api/scores', { params });
-    return response.data.scores;
+    const token = await getToken();
+    
+    if (token) {
+      // Authenticated user - backend will use token to get user's scores
+      const response = await api.get('/api/scores');
+      return response.data.scores;
+    } else {
+      // Legacy mode - use nickname parameter
+      const nickname = await AsyncStorage.getItem('player_nickname');
+      const params = nickname ? { nickname } : {};
+      const response = await api.get('/api/scores', { params });
+      return response.data.scores;
+    }
   } catch (error) {
     console.error('Error fetching general stats:', error);
     throw error;
@@ -308,8 +413,13 @@ export const fetchOpenTriviaQuestions = async (
 
 // Helper function to decode HTML entities (like &quot;)
 const decodeHTMLEntities = (text: string): string => {
-  // Simple replacement for common HTML entities
-  return text
+  // First handle numeric entities like &#241; (ñ) and &#225; (á)
+  let decoded = text.replace(/&#(\d+);/g, (match, num) => {
+    return String.fromCharCode(parseInt(num, 10));
+  });
+  
+  // Then handle named entities
+  return decoded
     .replace(/&quot;/g, '"')
     .replace(/&#039;/g, "'")
     .replace(/&amp;/g, '&')

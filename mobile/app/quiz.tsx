@@ -4,14 +4,12 @@ import QuizScreen from '../screens/QuizScreen';
 export default function Quiz() {
   const params = useLocalSearchParams();
   const category = params.category as string;
-  const difficulty = Number(params.difficulty);
+  const difficulty = params.difficulty ? Number(params.difficulty) : undefined;
   
   return (
     <>
       <Stack.Screen options={{ 
-        title: 'Quiz',
-        headerLeft: () => null,
-        gestureEnabled: false
+        title: 'Quiz'
       }} />
       <QuizScreen 
         category={category}

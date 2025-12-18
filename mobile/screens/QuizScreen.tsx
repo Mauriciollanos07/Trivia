@@ -12,11 +12,12 @@ import { QUIZ_CONFIG } from '../constants/quizConfig';
 import QuestionCard from '../components/QuestionCard';
 import Timer from '../components/Timer';
 import { AppColors } from '@/constants/Colors';
+import { TextStyles } from '@/constants/Typography';
 import { useTriviaMiles } from '../contexts/TriviaMilesContext';
 
 interface QuizScreenProps {
   category: string;
-  difficulty: number;
+  difficulty?: number;
 }
 
 interface Question {
@@ -51,11 +52,13 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
       
       // Map difficulty from number to OpenTriviaDifficulty enum
       let openTriviaDifficulty;
-      switch(difficulty) {
-        case 1: openTriviaDifficulty = OpenTriviaDifficulty.EASY; break;
-        case 2: openTriviaDifficulty = OpenTriviaDifficulty.MEDIUM; break;
-        case 3: openTriviaDifficulty = OpenTriviaDifficulty.HARD; break;
-        default: openTriviaDifficulty = undefined;
+      if (difficulty) {
+        switch(difficulty) {
+          case 1: openTriviaDifficulty = OpenTriviaDifficulty.EASY; break;
+          case 2: openTriviaDifficulty = OpenTriviaDifficulty.MEDIUM; break;
+          case 3: openTriviaDifficulty = OpenTriviaDifficulty.HARD; break;
+          default: openTriviaDifficulty = undefined;
+        }
       }
       
       // Map category string to Open Trivia DB category ID
@@ -160,8 +163,13 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
       });
     }
   };
-  if (!category || isNaN(difficulty)) {
-    return <Text>Invalid quiz parameters. Please go back and select a category.</Text>;
+  if (!category) {
+    return (
+      <View style={styles.loadingContainer}>
+        <Text style={styles.errorText}>INVALID FLIGHT PARAMETERS</Text>
+        <Text style={styles.errorSubText}>Please return to terminal and select destination</Text>
+      </View>
+    );
   }
 
   if (loading) {
@@ -193,10 +201,15 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.progress}>
-          Question {currentQuestion + 1} of {questions.length}
-        </Text>
+      <View style={styles.flightDashboard}>
+        <View style={styles.dashboardRow}>
+          <Text style={styles.flightNumber}>
+            FLIGHT {currentQuestion + 1}/{questions.length}
+          </Text>
+          <Text style={styles.milesDisplay}>
+            MILES: {miles}
+          </Text>
+        </View>
         <Timer 
           initialTime={QUIZ_CONFIG.INITIAL_TIME}
           onTimeUp={() => {
@@ -206,7 +219,6 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
           isActive={!loading && !isFinishing}
           setSecondsAtEnd={setSecondsAtEnd}
         />
-        <Text style={styles.miles}>Miles: {miles}</Text>
       </View>
     
       {isFinishing ? (
@@ -234,58 +246,82 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: AppColors.darkBlue,
+    backgroundColor: AppColors.terminalBlack,
   },
+  
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: AppColors.darkBlue,
+    backgroundColor: AppColors.terminalBlack,
   },
+  
   loadingText: {
+    ...TextStyles.documentBody,
     marginTop: 10,
     fontSize: 16,
     color: AppColors.lightText,
   },
-  header: {
+  
+  // Flight dashboard header
+  flightDashboard: {
+    backgroundColor: AppColors.cardBackground,
+    borderWidth: 2,
+    borderColor: AppColors.amberGlow,
+    padding: 15,
+    marginBottom: 20,
+  },
+  
+  dashboardRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  progress: {
-    fontSize: 16,
+  
+  flightNumber: {
+    ...TextStyles.terminalNumber,
+    fontSize: 14,
     color: AppColors.lightText,
+    letterSpacing: 1,
   },
-  miles: {
-    fontSize: 16,
-    color: AppColors.primaryButton,
+  
+  milesDisplay: {
+    ...TextStyles.terminalNumber,
+    fontSize: 14,
+    color: AppColors.amberGlow,
     fontWeight: 'bold',
   },
+  
   errorText: {
+    ...TextStyles.terminalHeader,
     fontSize: 24,
     color: AppColors.lightText,
     textAlign: 'center',
     marginBottom: 10,
   },
+  
   errorSubText: {
+    ...TextStyles.documentBody,
     fontSize: 16,
     color: AppColors.mediumText,
     textAlign: 'center',
     marginBottom: 30,
   },
+  
   errorButton: {
-    backgroundColor: AppColors.primaryButton,
+    backgroundColor: AppColors.amberGlow,
+    borderWidth: 2,
+    borderColor: AppColors.goldAccent,
     paddingVertical: 15,
     paddingHorizontal: 40,
-    borderRadius: 8,
   },
+  
   errorButtonText: {
+    ...TextStyles.buttonText,
     color: AppColors.lightText,
     fontSize: 18,
-    fontWeight: 'bold',
   },
-
 });
 
 export default QuizScreen;

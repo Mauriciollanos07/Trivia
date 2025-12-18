@@ -1,5 +1,6 @@
 import { Stack } from 'expo-router';
 import { TriviaMilesProvider } from '../contexts/TriviaMilesContext';
+import { AppColors } from '@/constants/Colors';
 
 export default function Layout() {
   return (
@@ -7,12 +8,23 @@ export default function Layout() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: '#2196F3',
+            backgroundColor: AppColors.cardBackground,
+            borderBottomWidth: 2,
+            borderBottomColor: AppColors.amberGlow,
           },
-          headerTintColor: '#fff',
+          headerTintColor: AppColors.lightText,
           headerTitleStyle: {
+            fontFamily: 'Courier New', // Monospace for terminal feel
             fontWeight: 'bold',
+            fontSize: 18,
+            letterSpacing: 1.5,
+            color: AppColors.amberGlow,
           },
+          headerBackTitleStyle: {
+            fontFamily: 'Courier New',
+            color: AppColors.lightText,
+          },
+          headerShadowVisible: false,
         }}
       />
     </TriviaMilesProvider>
