@@ -5,8 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const getApiUrl = () => {
   if (__DEV__) {
     // Development mode - temporarily using Render for testing
-    //return 'https://trivia-6xsr.onrender.com'; // Render instance
-    return 'http://localhost:5001'; // Local Flask server
+    return 'https://trivia-6xsr.onrender.com'; // Render instance
+    //return 'http://localhost:5001'; // Local Flask server
     // For Android emulator, use: 'http://10.0.2.2:5001'
   } else {
     // Production mode
@@ -390,7 +390,10 @@ export const fetchOpenTriviaQuestions = async (
   difficulty?: OpenTriviaDifficulty,
   type?: OpenTriviaType
 ): Promise<OpenTriviaResponse> => {
-  const params: Record<string, string | number> = { amount };
+  const params: Record<string, string | number> = { 
+    amount,
+    encode: 'base64' // Use Base64 encoding to avoid HTML entity issues
+  };
   
   if (categoryId) params.category = categoryId;
   if (difficulty) params.difficulty = difficulty;
@@ -398,41 +401,38 @@ export const fetchOpenTriviaQuestions = async (
   
   const response = await axios.get(`${OPEN_TRIVIA_API_URL}/api.php`, { params });
   
-  // HTML entities in questions and answers need to be decoded
+  // Decode Base64 encoded questions and answers
   if (response.data.results) {
     response.data.results = response.data.results.map((q: OpenTriviaQuestion) => ({
       ...q,
-      question: decodeHTMLEntities(q.question),
-      correct_answer: decodeHTMLEntities(q.correct_answer),
-      incorrect_answers: q.incorrect_answers.map(decodeHTMLEntities)
+      category: decodeBase64(q.category),
+      question: decodeBase64(q.question),
+      correct_answer: decodeBase64(q.correct_answer),
+      incorrect_answers: q.incorrect_answers.map(decodeBase64)
     }));
   }
   
   return response.data;
 };
 
-// Helper function to decode HTML entities (like &quot;)
-const decodeHTMLEntities = (text: string): string => {
-  // First handle numeric entities like &#241; (ñ) and &#225; (á)
-  let decoded = text.replace(/&#(\d+);/g, (match, num) => {
-    return String.fromCharCode(parseInt(num, 10));
-  });
-  
-  // Then handle named entities
-  return decoded
-    .replace(/&quot;/g, '"')
-    .replace(/&#039;/g, "'")
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&rsquo;/g, "'")
-    .replace(/&lsquo;/g, "'")
-    .replace(/&ldquo;/g, '"')
-    .replace(/&rdquo;/g, '"')
-    .replace(/&hellip;/g, '...')
-    .replace(/&mdash;/g, '-')
-    .replace(/&ndash;/g, '-');
+// Helper function to decode Base64 encoded text with proper UTF-8 support
+const decodeBase64 = (text: string): string => {
+  try {
+    // First decode Base64 to binary string
+    const binaryString = atob(text);
+    
+    // Convert binary string to UTF-8
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    
+    // Decode UTF-8 bytes to proper string
+    return new TextDecoder('utf-8').decode(bytes);
+  } catch (error) {
+    console.error('Error decoding Base64:', error);
+    return text; // Return original text if decoding fails
+  }
 };
 
 // Convert Open Trivia DB questions to our app's Question format

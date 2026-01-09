@@ -1,8 +1,8 @@
 import { Stack, useRouter } from 'expo-router';
 import { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert, Dimensions, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { AppColors } from '@/constants/Colors';
+import { AppColors, GradientColors } from '@/constants/Colors';
 import { TextStyles } from '@/constants/Typography';
 import { registerNickname, checkNicknameAvailability } from '@/services/api';
 
@@ -12,13 +12,8 @@ export default function Login() {
   const router = useRouter();
   const [nickname, setNickname] = useState('');
   const [loading, setLoading] = useState(false);
-  const [colorScheme, setColorScheme] = useState<'blue' | 'magenta'>('blue');
+  const [colorScheme, setColorScheme] = useState<'blue' | 'magenta' | 'darkBlue'>('blue');
   
-  // Gradient colors based on designer concepts
-  const gradientColors = {
-    blue: ['#00969b', '#82b7bc'],
-    magenta: ['#ee366d', '#f596a3']
-  };
 
   const handleSubmit = async () => {
     if (!nickname.trim()) {
@@ -63,14 +58,18 @@ export default function Login() {
         headerBackVisible: true
       }} />
       <LinearGradient
-        colors={gradientColors[colorScheme]}
+        colors={GradientColors[colorScheme]}
         style={styles.gradientContainer}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 1, y: 0 }}
       >
-        {/* Logo placeholder - replace with your actual logo */}
+        {/* Logo */}
         <View style={styles.logoContainer}>
-          <Text style={styles.logoText}>THE TRIVIALER</Text>
+          <Image 
+            source={require('@/assets/images/white-logo.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
           <Text style={styles.logoSubtext}>GLOBAL KNOWLEDGE TERMINAL</Text>
         </View>
         
@@ -99,14 +98,13 @@ export default function Login() {
         
         {/* Registration form */}
         <View style={styles.registrationCard}>
-          <Text style={styles.cardTitle}>TRAVELER REGISTRATION</Text>
-          
+          <Text style={[styles.cardTitle, { color: "white" }]}>TRAVELER REGISTRATION</Text>
           <View style={styles.inputSection}>
-            <Text style={styles.inputLabel}>ENTER CALL SIGN</Text>
+            <Text style={[styles.inputLabel, { color: 'white' }]}>ENTER CALL SIGN</Text>
             <TextInput
-              style={styles.terminalInput}
+              style={[styles.terminalInput, { color: 'white', borderColor: 'white' }]}
               placeholder="YOUR_TRAVEL_NAME"
-              placeholderTextColor="rgba(255,255,255,0.5)"
+              placeholderTextColor='white'
               value={nickname}
               onChangeText={setNickname}
               maxLength={20}
@@ -116,11 +114,11 @@ export default function Login() {
           </View>
           
           <TouchableOpacity
-            style={[styles.launchButton, loading && styles.buttonDisabled]}
+            style={[styles.launchButton, loading && styles.buttonDisabled, { borderColor: GradientColors[colorScheme][1] }]}
             onPress={handleSubmit}
             disabled={loading}
           >
-            <Text style={styles.launchButtonText}>
+            <Text style={[styles.launchButtonText, { color: GradientColors[colorScheme][1] }]}>
               {loading ? 'PROCESSING...' : 'LAUNCH JOURNEY'}
             </Text>
           </TouchableOpacity>
@@ -144,15 +142,10 @@ const styles = StyleSheet.create({
     marginBottom: 40,
   },
   
-  logoText: {
-    fontFamily: 'Courier New',
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: 'white',
-    textShadowColor: 'rgba(0,0,0,0.3)',
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 4,
-    letterSpacing: 3,
+  logoImage: {
+    width: 250,
+    height: 100,
+    marginBottom: 10,
   },
   
   logoSubtext: {
@@ -210,23 +203,17 @@ const styles = StyleSheet.create({
   
   // Registration card
   registrationCard: {
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.3)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.4)',
     padding: 30,
     width: '100%',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   
   cardTitle: {
     fontFamily: 'Courier New',
     fontSize: 18,
-    color: 'white',
     marginBottom: 20,
     letterSpacing: 2,
     fontWeight: 'bold',
@@ -240,7 +227,6 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontFamily: 'Courier New',
     fontSize: 12,
-    color: 'rgba(255,255,255,0.8)',
     marginBottom: 8,
     letterSpacing: 1,
   },
@@ -249,17 +235,15 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.5)',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(255,255,255,0.3)',
     paddingHorizontal: 15,
-    color: 'white',
     fontFamily: 'Courier New',
     fontSize: 16,
     letterSpacing: 1,
   },
   
   launchButton: {
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: AppColors.lightButtonBackground,
     borderWidth: 2,
     borderColor: 'white',
     paddingVertical: 16,
@@ -274,7 +258,6 @@ const styles = StyleSheet.create({
   
   launchButtonText: {
     fontFamily: 'Courier New',
-    color: 'white',
     fontSize: 16,
     letterSpacing: 2,
     fontWeight: 'bold',

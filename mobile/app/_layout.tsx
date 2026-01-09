@@ -8,21 +8,21 @@ export default function Layout() {
       <Stack
         screenOptions={{
           headerStyle: {
-            backgroundColor: AppColors.cardBackground,
+            backgroundColor: AppColors.mediumText,
             borderBottomWidth: 2,
-            borderBottomColor: AppColors.amberGlow,
+            borderBottomColor: AppColors.logoBackGround,
           },
-          headerTintColor: AppColors.lightText,
+          headerTintColor: AppColors.logoBackGround,
           headerTitleStyle: {
             fontFamily: 'Courier New', // Monospace for terminal feel
             fontWeight: 'bold',
             fontSize: 18,
             letterSpacing: 1.5,
-            color: AppColors.amberGlow,
+            color: AppColors.logoBackGround
           },
           headerBackTitleStyle: {
             fontFamily: 'Courier New',
-            color: AppColors.lightText,
+            color: AppColors.logoBackGround,
           },
           headerShadowVisible: false,
         }}

@@ -23,7 +23,7 @@
       },
       "edgeToEdgeEnabled": true,
       "package": "com.maurostudio.thetrivialer",
-      "versionCode": 2,
+      "versionCode": 4,
       "compileSdkVersion": 34,
       "targetSdkVersion": 34,
       "permissions": [

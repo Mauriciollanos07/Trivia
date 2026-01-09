@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, BackHandler } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { 
   fetchOpenTriviaQuestions, 
   convertOpenTriviaQuestions, 
@@ -11,7 +12,7 @@ import {
 import { QUIZ_CONFIG } from '../constants/quizConfig';
 import QuestionCard from '../components/QuestionCard';
 import Timer from '../components/Timer';
-import { AppColors } from '@/constants/Colors';
+import { AppColors, GradientColors } from '@/constants/Colors';
 import { TextStyles } from '@/constants/Typography';
 import { useTriviaMiles } from '../contexts/TriviaMilesContext';
 
@@ -40,6 +41,28 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
   const [isFinishing, setIsFinishing] = useState(false);
   const [milesUsed, setMilesUsed] = useState<number>(0);
   const [secondsAtEnd, setSecondsAtEnd] = useState<number>(QUIZ_CONFIG.INITIAL_TIME);
+
+  // Handle hardware back button and cleanup stale states
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        // Clear all quiz states to prevent stale data
+        setQuestions([]);
+        setCurrentQuestion(0);
+        setScore(0);
+        setAnswersSelected([]);
+        setIsFinishing(false);
+        setMilesUsed(0);
+        setLoading(true);
+        router.dismissAll();
+        router.replace('/');
+        return true;
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => subscription.remove();
+    }, [router])
+  );
 
   useEffect(() => {
     loadQuestions();
@@ -200,7 +223,13 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={GradientColors.blueToLightBlue}
+      style={styles.gradientContainer}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 1, y: 0 }}
+    >
+      <View style={styles.container}>
       <View style={styles.flightDashboard}>
         <View style={styles.dashboardRow}>
           <Text style={styles.flightNumber}>
@@ -238,22 +267,25 @@ const QuizScreen: React.FC<QuizScreenProps> = ({ category, difficulty }) => {
           />
         )
       )}
-    </View>
+      </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradientContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: AppColors.terminalBlack,
   },
   
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: AppColors.terminalBlack,
+    backgroundColor: AppColors.lightMagentaTransparent,
   },
   
   loadingText: {
@@ -265,7 +297,7 @@ const styles = StyleSheet.create({
   
   // Flight dashboard header
   flightDashboard: {
-    backgroundColor: AppColors.cardBackground,
+    backgroundColor: AppColors.passportBlueTransparent,
     borderWidth: 2,
     borderColor: AppColors.amberGlow,
     padding: 15,

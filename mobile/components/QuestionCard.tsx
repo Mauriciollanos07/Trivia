@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { AppColors } from '@/constants/Colors';
 import { useTriviaMiles } from '../contexts/TriviaMilesContext';
 
@@ -84,7 +84,7 @@ const QuestionCard = ({ question, onAnswer, disabled = false, miles, milesUsed, 
   };
   
   return (
-    <View style={styles.container}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
       <Text style={styles.category}>{question.category}</Text>
       <Text style={styles.difficulty}>
         Difficulty: {Array(question.difficulty).fill('★').join('')}
@@ -115,13 +115,13 @@ const QuestionCard = ({ question, onAnswer, disabled = false, miles, milesUsed, 
           );
         })}
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: AppColors.passportBlue,
+    backgroundColor: AppColors.whiteTransparent,
     borderRadius: 10,
     padding: 20,
     marginVertical: 10,
@@ -133,12 +133,12 @@ const styles = StyleSheet.create({
   },
   category: {
     fontSize: 14,
-    color: AppColors.mediumText,
+    color: AppColors.lightText,
     marginBottom: 5,
   },
   difficulty: {
     fontSize: 14,
-    color: AppColors.mediumText,
+    color: AppColors.lightText,
     marginBottom: 15,
   },
   questionText: {
@@ -150,14 +150,16 @@ const styles = StyleSheet.create({
   },
   answersContainer: {
     marginTop: 10,
+    borderRadius: 8,
+    padding: 10,
   },
   answerButton: {
-    backgroundColor: AppColors.passportBlue,
+    backgroundColor: AppColors.cardBackgroundTransparent,
     padding: 15,
     borderRadius: 8,
     borderWidth: 3,
     marginBottom: 10,
-    borderColor: AppColors.amberGlow,
+    borderColor: AppColors.whiteTransparent2,
   },
   correctAnswer: {
     backgroundColor: AppColors.successButton,
@@ -177,6 +179,8 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 15,
     alignItems: 'center',
+    borderColor: AppColors.goldAccent,
+    borderWidth: 2,
   },
   mileButtonText: {
     color: 'white',
@@ -190,6 +194,9 @@ const styles = StyleSheet.create({
   eliminatedText: {
     textDecorationLine: 'line-through',
     color: '#999',
+  },
+  scrollContent: {
+    paddingBottom: 50, // Extra padding for device nav bars
   },
 });
 

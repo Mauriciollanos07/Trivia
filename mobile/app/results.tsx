@@ -1,6 +1,8 @@
-import { Stack, useLocalSearchParams, useRouter  } from 'expo-router';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { AppColors } from '@/constants/Colors';
+import { Stack, useLocalSearchParams, useRouter, useFocusEffect  } from 'expo-router';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, BackHandler } from 'react-native';
+import { useCallback } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { AppColors, GradientColors } from '@/constants/Colors';
 import { TextStyles, Typography } from '@/constants/Typography';
 
 export default function Results() {
@@ -14,6 +16,21 @@ export default function Results() {
   const difficulty = params.difficulty ? Number(params.difficulty) : undefined;
   
   const percentage = total > 0 ? Math.round((normalScore / total) * 10) : 0;
+
+  // Handle hardware back button on Android
+  useFocusEffect(
+    useCallback(() => {
+      const onBackPress = () => {
+        // Prevent going back to quiz, go to home instead
+        router.dismissAll();
+        router.replace('/');
+        return true; // Prevent default behavior
+      };
+
+      const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+      return () => subscription.remove();
+    }, [router])
+  );
 
   if (!category || isNaN(normalScore) || isNaN(trivialerScore) || isNaN(total)) {
     // If parameters are invalid, show an error message
@@ -33,7 +50,13 @@ export default function Results() {
         headerLeft: () => null,
         gestureEnabled: false
       }} />
-      <View style={styles.container}>
+      <LinearGradient
+        colors={GradientColors.magentaToLightBlue}
+        style={styles.gradientContainer}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 1, y: 0 }}
+      >
+        <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>JOURNEY COMPLETE</Text>
         
         {/* Passport-style result card */}
@@ -96,18 +119,25 @@ export default function Results() {
         >
           <Text style={styles.terminalButtonText}>NEXT DEPARTURE →</Text>
         </TouchableOpacity>
-      </View>
+        </ScrollView>
+      </LinearGradient>
     </>
   );
 }
 
 const styles = StyleSheet.create({
+  gradientContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
+  },
+  contentContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: AppColors.terminalBlack,
+    paddingBottom: 100, // Extra padding for device nav bars
   },
   title: {
     ...TextStyles.terminalHeader,
@@ -118,18 +148,13 @@ const styles = StyleSheet.create({
   
   // Passport-style card
   passportCard: {
-    backgroundColor: AppColors.passportBlue,
+    backgroundColor: AppColors.cardBackgroundTransparent,
     borderWidth: 3,
     borderColor: AppColors.goldAccent,
     borderRadius: 2, // Sharp corners like passport
     padding: 24,
     width: '100%',
     marginBottom: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   
   passportHeader: {
@@ -227,9 +252,9 @@ const styles = StyleSheet.create({
   
   // Airport terminal-style buttons
   terminalButton: {
-    backgroundColor: AppColors.cardBackground,
+    backgroundColor: AppColors.whiteTransparent,
     borderWidth: 2,
-    borderColor: AppColors.amberGlow,
+    borderColor: AppColors.whiteTransparent2,
     paddingVertical: 16,
     paddingHorizontal: 32,
     marginVertical: 8,
@@ -240,7 +265,7 @@ const styles = StyleSheet.create({
   
   departureButton: {
     backgroundColor: AppColors.amberGlow,
-    borderColor: AppColors.goldAccent,
+    borderColor: AppColors.whiteTransparent2,
   },
   
   terminalButtonText: {

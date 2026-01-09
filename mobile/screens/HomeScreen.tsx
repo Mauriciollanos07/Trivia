@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { AppColors } from '@/constants/Colors';
+import { AppColors, GradientColors } from '@/constants/Colors';
 import { TextStyles } from '@/constants/Typography';
 import { getCurrentUser, logout } from '@/services/api';
 
@@ -62,10 +63,20 @@ const HomeScreen = () => {
   }
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={GradientColors.blueToLightBlue}
+      style={styles.gradientContainer}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 1, y: 0 }}
+    >
+      <View style={styles.container}>
       {/* Terminal Header */}
       <View style={styles.terminalHeader}>
-        <Text style={styles.terminalTitle}>THE TRIVIALER</Text>
+        <Image 
+          source={require('@/assets/images/white-logo.png')} 
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
         <Text style={styles.terminalSubtitle}>GLOBAL KNOWLEDGE TERMINAL</Text>
       </View>
       
@@ -101,25 +112,21 @@ const HomeScreen = () => {
         >
           <Text style={styles.terminalButtonText}>📊 TRAVEL LOG</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.terminalButton, styles.secondaryButton]}
-          onPress={changeNickname}
-        >
-          <Text style={styles.terminalButtonText}>⚙ CHANGE IDENTITY</Text>
-        </TouchableOpacity>
       </View>
-    </View>
+      </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
+  gradientContainer: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
-    backgroundColor: AppColors.terminalBlack,
   },
   
   // Terminal Header
@@ -128,10 +135,9 @@ const styles = StyleSheet.create({
     marginBottom: 30,
   },
   
-  terminalTitle: {
-    ...TextStyles.terminalHeader,
-    color: AppColors.amberGlow,
-    fontSize: 36,
+  logoImage: {
+    width: 200,
+    height: 80,
     marginBottom: 8,
   },
   
@@ -144,18 +150,13 @@ const styles = StyleSheet.create({
   
   // Passport Card
   passportCard: {
-    backgroundColor: AppColors.passportBlue,
+    backgroundColor: AppColors.passportBlueTransparent,
     borderWidth: 3,
-    borderColor: AppColors.goldAccent,
+    borderColor: AppColors.whiteTransparent2,
     padding: 24,
     width: '100%',
     marginBottom: 30,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 8,
   },
   
   passportHeader: {
@@ -220,19 +221,14 @@ const styles = StyleSheet.create({
   },
   
   terminalButton: {
-    backgroundColor: AppColors.cardBackground,
+    backgroundColor: AppColors.whiteTransparent,
     borderWidth: 2,
-    borderColor: AppColors.amberGlow,
+    borderColor: AppColors.whiteTransparent2,
     paddingVertical: 16,
     paddingHorizontal: 32,
     marginVertical: 8,
     width: '90%',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
   },
   
   secondaryButton: {

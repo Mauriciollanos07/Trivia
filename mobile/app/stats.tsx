@@ -1,9 +1,10 @@
 import { Stack } from 'expo-router';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useState, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchUserStats, UserStats, fetchGeneralStats, GeneralStats } from '@/services/api';
-import { AppColors } from '@/constants/Colors';
+import { AppColors, GradientColors } from '@/constants/Colors';
 import { TextStyles } from '@/constants/Typography';
 
 export default function Stats() {
@@ -62,9 +63,15 @@ export default function Stats() {
  };
 
   return (
-    <View style={styles.mainContainer}>
+    <LinearGradient
+      colors={GradientColors.blue}
+      style={styles.gradientContainer}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 1, y: 0 }}
+    >
+      <View style={styles.mainContainer}>
       <Stack.Screen options={{ title: 'Travel Log' }} />
-      <ScrollView>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.logHeader}>
           <Text style={styles.logTitle}>TRAVEL LOG</Text>
           <Text style={styles.travelerName}>{nickname?.toUpperCase()}</Text>
@@ -180,20 +187,26 @@ export default function Stats() {
       )}
       </ScrollView>
     </View>
+    </LinearGradient>
     
 )}
 
 const styles = StyleSheet.create({
+  gradientContainer: {
+    flex: 1,
+  },
   mainContainer: {
     flex: 1,
-    backgroundColor: AppColors.terminalBlack,
+  },
+  scrollContent: {
+    paddingBottom: 100, // Extra padding for device nav bars
   },
   
   // Header
   logHeader: {
-    backgroundColor: AppColors.cardBackground,
+    backgroundColor: AppColors.whiteTransparent,
     borderWidth: 2,
-    borderColor: AppColors.amberGlow,
+    borderColor: AppColors.whiteTransparent2,
     padding: 20,
     margin: 20,
     alignItems: 'center',
@@ -201,22 +214,22 @@ const styles = StyleSheet.create({
   
   logTitle: {
     ...TextStyles.terminalHeader,
-    color: AppColors.amberGlow,
+    color: AppColors.logoBackGround,
     fontSize: 28,
     marginBottom: 8,
   },
   
   travelerName: {
     ...TextStyles.terminalNumber,
-    color: AppColors.goldAccent,
+    color: AppColors.logoBackGround,
     fontSize: 16,
   },
   
   // Empty state
   emptyLogCard: {
-    backgroundColor: AppColors.passportBlue,
+    backgroundColor: AppColors.whiteTransparent,
     borderWidth: 2,
-    borderColor: AppColors.goldAccent,
+    borderColor: AppColors.whiteTransparent2,
     padding: 30,
     margin: 20,
     alignItems: 'center',
@@ -224,14 +237,14 @@ const styles = StyleSheet.create({
   
   emptyLogText: {
     ...TextStyles.terminalHeader,
-    color: AppColors.goldAccent,
+    color: AppColors.lightText,
     fontSize: 18,
     marginBottom: 10,
   },
   
   emptyLogSubtext: {
     ...TextStyles.documentBody,
-    color: AppColors.mediumText,
+    color: AppColors.lightText,
     fontSize: 14,
     textAlign: 'center',
   },
@@ -245,21 +258,19 @@ const styles = StyleSheet.create({
   
   terminalTab: {
     flex: 1,
-    backgroundColor: AppColors.cardBackground,
-    borderWidth: 2,
-    borderColor: AppColors.mediumText,
+    backgroundColor: AppColors.whiteTransparent,
+    borderColor: AppColors.whiteTransparent2,
     paddingVertical: 12,
     alignItems: 'center',
   },
   
   activeTab: {
-    backgroundColor: AppColors.amberGlow,
-    borderColor: AppColors.goldAccent,
+    backgroundColor: AppColors.logoBackGround,
   },
   
   tabText: {
     ...TextStyles.buttonText,
-    color: AppColors.mediumText,
+    color: AppColors.lightText,
     fontSize: 14,
   },
   
@@ -274,7 +285,7 @@ const styles = StyleSheet.create({
   
   passportSectionTitle: {
     ...TextStyles.passportStamp,
-    color: AppColors.goldAccent,
+    color: AppColors.lightText,
     fontSize: 16,
     marginBottom: 20,
     textAlign: 'center',
@@ -287,9 +298,9 @@ const styles = StyleSheet.create({
   
   statCard: {
     flex: 1,
-    backgroundColor: AppColors.passportBlue,
+    backgroundColor: AppColors.whiteTransparent,
     borderWidth: 2,
-    borderColor: AppColors.goldAccent,
+    borderColor: AppColors.whiteTransparent2,
     padding: 20,
     alignItems: 'center',
     marginHorizontal: 5,
@@ -297,29 +308,29 @@ const styles = StyleSheet.create({
   
   statNumber: {
     ...TextStyles.scoreDisplay,
-    color: AppColors.amberGlow,
+    color: AppColors.logoBackGround,
     fontSize: 32,
     marginBottom: 5,
   },
   
   statLabel: {
     ...TextStyles.passportStamp,
-    color: AppColors.mediumText,
+    color: AppColors.lightText,
     fontSize: 12,
   },
   
   // Score section
   scoreSection: {
-    backgroundColor: AppColors.passportBlue,
+    backgroundColor: AppColors.whiteTransparent,
     borderWidth: 2,
-    borderColor: AppColors.goldAccent,
+    borderColor: AppColors.whiteTransparent2,
     padding: 20,
     marginTop: 10,
   },
   
   scoreSectionTitle: {
     ...TextStyles.passportStamp,
-    color: AppColors.goldAccent,
+    color: AppColors.logoBackGround,
     fontSize: 14,
     marginBottom: 15,
     textAlign: 'center',
@@ -334,7 +345,7 @@ const styles = StyleSheet.create({
   
   scoreLabel: {
     ...TextStyles.documentBody,
-    color: AppColors.mediumText,
+    color: AppColors.lightText,
     fontSize: 14,
   },
   
@@ -350,9 +361,9 @@ const styles = StyleSheet.create({
   },
   
   flightCard: {
-    backgroundColor: AppColors.passportBlue,
+    backgroundColor: AppColors.whiteTransparent,
     borderWidth: 2,
-    borderColor: AppColors.goldAccent,
+    borderColor: AppColors.whiteTransparent2,
     padding: 20,
     marginBottom: 15,
   },
@@ -366,13 +377,13 @@ const styles = StyleSheet.create({
   
   flightDate: {
     ...TextStyles.terminalNumber,
-    color: AppColors.lightText,
+    color: AppColors.logoBackGround,
     fontSize: 16,
   },
   
   flightStamp: {
     borderWidth: 2,
-    borderColor: AppColors.visaGreen,
+    borderColor: AppColors.darkSuccessButton,
     paddingHorizontal: 8,
     paddingVertical: 4,
     transform: [{ rotate: '15deg' }],
@@ -380,7 +391,7 @@ const styles = StyleSheet.create({
   
   stampText: {
     ...TextStyles.passportStamp,
-    color: AppColors.visaGreen,
+    color: AppColors.darkSuccessButton,
     fontSize: 10,
   },
   
@@ -390,12 +401,12 @@ const styles = StyleSheet.create({
   
   flightDetail: {
     ...TextStyles.documentBody,
-    color: AppColors.mediumText,
+    color: AppColors.lightText,
     fontSize: 14,
   },
   
   // Score colors
-  high: { color: AppColors.visaGreen },
+  high: { color: AppColors.darkSuccessButton },
   medium: { color: AppColors.lightText },
-  low: { color: AppColors.alertRed },
+  low: { color: AppColors.darkerDangerButton },
 });

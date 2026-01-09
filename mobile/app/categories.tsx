@@ -1,14 +1,20 @@
 import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { AppColors } from '@/constants/Colors';
+import { AppColors, GradientColors } from '@/constants/Colors';
 import { TextStyles } from '@/constants/Typography';
 
 export default function  Categories() {
     const router = useRouter();
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={GradientColors.blueToLightBlue}
+      style={styles.gradientContainer}
+      start={{ x: 0, y: 1 }}
+      end={{ x: 1, y: 0 }}
+    >
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={styles.scrollContent}
@@ -48,17 +54,16 @@ export default function  Categories() {
           </View>
         ))}
       </ScrollView>
-    </View>
+    </LinearGradient>
 
   );
 }
 
 
 const styles = StyleSheet.create({
-  container: {
+  gradientContainer: {
     flex: 1,
     padding: 20,
-    backgroundColor: AppColors.terminalBlack,
   },
   scrollContent: {
     alignItems: 'center',
@@ -67,9 +72,9 @@ const styles = StyleSheet.create({
   
   // Departure board header
   departureBoard: {
-    backgroundColor: AppColors.cardBackground,
+    backgroundColor: AppColors.passportBlueTransparent,
     borderWidth: 2,
-    borderColor: AppColors.amberGlow,
+    borderColor: AppColors.whiteTransparent2,
     padding: 20,
     marginBottom: 30,
     width: '100%',
@@ -97,7 +102,7 @@ const styles = StyleSheet.create({
   },
   
   destinationButton: {
-    backgroundColor: AppColors.cardBackground,
+    backgroundColor: AppColors.whiteTransparent,
     borderLeftWidth: 4,
     borderLeftColor: AppColors.amberGlow,
     paddingVertical: 16,
@@ -105,11 +110,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
   },
   
   flightInfo: {
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   
   statusText: {
     ...TextStyles.passportStamp,
-    color: AppColors.visaGreen,
+    color: AppColors.passportBlue,
     fontSize: 12,
     marginRight: 10,
   },
